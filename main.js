@@ -16,7 +16,7 @@ var database = [
 			host: 'graph.facebook.com',
 			commands: [{
 				 command: 'get',
-				 path_template: '/{uid}',
+				 path_template: '/{uid}?access_token={access_token}',
 				 ret: 'name',
 				 options: [
 				           {
@@ -24,9 +24,14 @@ var database = [
 				        	   long: 'uid',
 				        	   def: 'user id',
 				        	   desc: 'facebook user id',
-				        	   api_param: ''
-				        		  
-				           }
+				           },
+				           {
+				        	   short: 'a',
+				        	   long: 'access_token',
+				        	   def: 'access token',
+				        	   desc: 'access_token',
+				           },
+				           
 				 ]
 			 }]
 		},
@@ -89,6 +94,7 @@ program.parse(process.argv);
 
 
 function performRequest(api,command,options,callback){
+	
 	// is the host known? or is passed as -h --host?
 	// facebook host is known: graph.facebook.com
 	// gradle host is always param: 192.8.9.10
@@ -107,7 +113,7 @@ function performRequest(api,command,options,callback){
 	url = currentApi.protocol + '://' + currentApi.host;
 	path = currentCommand.path_template;
 	_.each(currentCommand.options,function(option){
-		path = path.replace('{' + option.long + '}',options['long']);
+		path = path.replace('{' + option.long + '}',options[option.long]);
 	});
 	url += path;
 	
