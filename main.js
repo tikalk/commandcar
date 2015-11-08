@@ -12,14 +12,19 @@ var _ = require('underscore');
 var database = [
 		{
 			api: 'facebook',
+			protocol: 'https',
+			host: 'graph.facebook.com',
 			commands: [{
 				 command: 'get',
+				 path_template: '/{uid}',
+				 ret: 'name',
 				 options: [
 				           {
 				        	   short: 'u',
 				        	   long: 'uid',
 				        	   def: 'user id',
-				        	   desc: 'facebook user id'
+				        	   desc: 'facebook user id',
+				        	   api_param: ''
 				        		  
 				           }
 				 ]
@@ -54,6 +59,9 @@ _.each(database,function(api){
 		});
 		theCommand.action(function(options){
 			console.log('should call ' + api.api + '_' + command.command + ' with uid ')
+			performRequest(api.api,command.command,options,function(err,ret){
+				
+			});
 		})
 	})
 	
@@ -77,3 +85,42 @@ _.each(database,function(api){
 //console.log('prigram: ' + util.inspect(program));
 
 program.parse(process.argv);
+
+
+
+function performRequest(api,command,options,callback){
+	// is the host known? or is passed as -h --host?
+	// facebook host is known: graph.facebook.com
+	// gradle host is always param: 192.8.9.10
+	
+	// some api take authorization bearer as headers
+	// some allow auth to pass as params
+	// some require basic auth
+	var url;
+	var form;
+	var path = '';
+	
+	// TBD add port (i.e. default 80 but surely not always)
+	var currentApi = _.find(database,function(item){return item.api == api;});
+	var currentCommand = _.find(currentApi.commands,function(item){return item.command == command;});
+	
+	url = currentApi.protocol + '://' + currentApi.host;
+	path = currentCommand.path_template;
+	_.each(currentCommand.options,function(option){
+		path = path.replace('{' + option.long + '}',options['long']);
+	});
+	url += path;
+	
+	console.log('url: ' + url);
+	
+//	request.post(url,function(error,response,body){
+//		if(error){
+//			callback(error);
+//		}else if(response.statusCode != 200){
+//			callback(body);
+//		}else{
+//			callback(null,body);
+//		}
+//	})
+	
+}
