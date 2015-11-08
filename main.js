@@ -7,6 +7,7 @@
 var program = require('commander');
 var util = require('util');
 var _ = require('underscore');
+var request = require('request');
 
 
 var database = [
@@ -16,7 +17,7 @@ var database = [
 			host: 'graph.facebook.com',
 			commands: [{
 				 command: 'get',
-				 path_template: '/{uid}?access_token={access_token}',
+				 path_template: '/{uid}?fields=name&access_token={access_token}',
 				 ret: 'name',
 				 options: [
 				           {
@@ -53,19 +54,23 @@ var database = [
 ];
 
 _.each(database,function(api){
-	console.log('processing commands for ' + api.api);
+//	console.log('processing commands for ' + api.api);
 	
 	_.each(api.commands,function(command){
-		console.log('adding command: ' + api.api + '_' + command.command);	
+//		console.log('adding command: ' + api.api + '_' + command.command);	
 		var theCommand = program.command(api.api + '_' + command.command);
 		_.each(command.options,function(option){
-			console.log('adding option: ' + '-' + option.short + ', --' + option.long + ' [' + option.def + ']');
+//			console.log('adding option: ' + '-' + option.short + ', --' + option.long + ' [' + option.def + ']');
 			theCommand.option('-' + option.short + ', --' + option.long + ' [' + option.def + ']',option.desc);
 		});
 		theCommand.action(function(options){
-			console.log('should call ' + api.api + '_' + command.command + ' with uid ')
+//			console.log('should call ' + api.api + '_' + command.command + ' with uid ')
 			performRequest(api.api,command.command,options,function(err,ret){
-				
+				if(err){
+					console.log('error: ' + err);
+				}else{
+					console.log(ret);
+				}
 			});
 		})
 	})
@@ -117,16 +122,19 @@ function performRequest(api,command,options,callback){
 	});
 	url += path;
 	
-	console.log('url: ' + url);
+//	console.log('url: ' + url);
 	
-//	request.post(url,function(error,response,body){
-//		if(error){
-//			callback(error);
-//		}else if(response.statusCode != 200){
-//			callback(body);
-//		}else{
-//			callback(null,body);
-//		}
-//	})
+	request(url,function(error,response,body){
+		if(error){
+			callback(error);
+		}else if(response.statusCode != 200){
+//			console.log('status code: ' + response.statusCode);
+			callback(body);
+		}else{
+//			console.log('body is: ' + util.inspect(body));
+			var data = JSON.parse(body);
+			callback(null,data[currentCommand['ret']]);
+		}
+	})
 	
 }
