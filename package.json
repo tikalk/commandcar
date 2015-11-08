@@ -6,6 +6,7 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "underscore": "*",
     "commander": "*",
     "request": "*"
   }
