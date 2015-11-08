@@ -38,15 +38,18 @@ var database = [
 		},
 		{
 			api: 'dropbox',
+			protocol: 'https',
+			host: 'api.dropbox.com',
 			commands: [{
-				 command: 'get',
+				 command: 'quota_info',
+				 path_template: '/1/account/info?access_token={access_token}',
+				 ret: 'quota_info',
 				 options: [
 				           {
-				        	   short: 'u',
-				        	   long: 'uid',
-				        	   def: 'user id',
-				        	   desc: 'dropbox user id'
-				        		  
+				        	   short: 'a',
+				        	   long: 'access_token',
+				        	   def: 'access token',
+				        	   desc: 'access_token',
 				           }
 				 ]
 			}]
