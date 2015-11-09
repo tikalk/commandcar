@@ -14,9 +14,10 @@ var jsonic = require('jsonic');
 /*
  * load database
  */
+
 var database = loadDatabaseFromCache();
 if(!database){
-	console.log('couldnt find cache, building database');
+//	console.log('couldnt find cache, building database');
 	database = buildDatabaseFromFileSystem();
 }
 
