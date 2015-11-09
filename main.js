@@ -153,17 +153,19 @@ function buildDatabaseFromFileSystem(){
 //		console.log('file: ' + util.inspect(file));
 		if(fs.lstatSync('./apis/' + file).isDirectory()){
 //			console.log('file: ' + './apis/' + file + ' is a directory');
-			api = jsonic(fs.readFileSync('./apis/' + file + '/api.json'));
+			api = jsonic(fs.readFileSync('./apis/' + file + '/api.json', 'utf-8'));
 			api['name'] = file;
 			api['commands'] = [];
+			console.log('working with an api: ' + util.inspect(api));
 			var commands = fs.readdirSync('./apis/' + file + '/commands');
 			_.each(commands,function(commandFile){
-				var command = fs.readdirSync('./apis/' + file + '/commands/' + commandFile);
+				var command = jsonic(fs.readFileSync('./apis/' + file + '/commands/' + commandFile, 'utf-8'));
 				command['name'] = commandFile.split('.').pop();
 				api.commands.push(command);
 			});
+			console.log('finsihed with an api: ' + util.inspect(api));
 			database.push(api);
 		}
 	});
-	console.log('database: ' + util.inspect(dataabse));
+	console.log('database: ' + util.inspect(database));
 }
