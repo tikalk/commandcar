@@ -10,7 +10,16 @@ var _ = require('underscore');
 var request = require('request');
 var fs = require('fs');
 var jsonic = require('jsonic');
-var database = buildDatabaseFromFileSystem();
+
+/*
+ * load database
+ */
+var database = loadDatabaseFromCache();
+if(!database){
+	console.log('couldnt find cache, building database');
+	database = buildDatabaseFromFileSystem();
+}
+
 
 //var database = [
 //		{
@@ -153,18 +162,30 @@ function buildDatabaseFromFileSystem(){
 //		console.log('file: ' + util.inspect(file));
 		if(fs.lstatSync('./apis/' + file).isDirectory()){
 //			console.log('file: ' + './apis/' + file + ' is a directory');
-			api = jsonic(fs.readFileSync('./apis/' + file + '/api.json', 'utf-8'));
+			api = jsonic(fs.readFileSync('./apis/' + file + '/api.json', 'utf8'));
 			api['name'] = file;
 			api['commands'] = [];
 			var commands = fs.readdirSync('./apis/' + file + '/commands');
 			_.each(commands,function(commandFile){
-				var command = jsonic(fs.readFileSync('./apis/' + file + '/commands/' + commandFile, 'utf-8'));
+				var command = jsonic(fs.readFileSync('./apis/' + file + '/commands/' + commandFile, 'utf8'));
 				command['name'] = commandFile.split('.')[0];
 				api.commands.push(command);
 			});
 			database.push(api);
 		}
 	});
-	console.log('database: ' + util.inspect(database,{depth:8}));
+//	console.log('database: ' + util.inspect(database,{depth:8}));
+	fs.writeFileSync('./cache.json',JSON.stringify(database));
 	return database;
+}
+
+function loadDatabaseFromCache(){
+	var cache = null;
+	try{
+		cache = fs.readFileSync('./cache.json', 'utf-8');
+		cache = jsonic(cache);
+	}catch(e){
+		
+	}
+	return cache;
 }
