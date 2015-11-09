@@ -8,7 +8,9 @@ var program = require('commander');
 var util = require('util');
 var _ = require('underscore');
 var request = require('request');
-
+var fs = require('fs');
+var jsonic = require('jsonic');
+buildDatabaseFromFileSystem();
 
 var database = [
 		{
@@ -140,4 +142,28 @@ function performRequest(api,command,options,callback){
 		}
 	})
 	
+}
+
+// TBD: need to work with the path module to make it compatible with windows???
+function buildDatabaseFromFileSystem(){
+	var database = [];
+	var api;
+	var files = fs.readdirSync('./apis/');
+	_.each(files,function(file){
+//		console.log('file: ' + util.inspect(file));
+		if(fs.lstatSync('./apis/' + file).isDirectory()){
+//			console.log('file: ' + './apis/' + file + ' is a directory');
+			api = jsonic(fs.readFileSync('./apis/' + file + '/api.json'));
+			api['name'] = file;
+			api['commands'] = [];
+			var commands = fs.readdirSync('./apis/' + file + '/commands');
+			_.each(commands,function(commandFile){
+				var command = fs.readdirSync('./apis/' + file + '/commands/' + commandFile);
+				command['name'] = commandFile.split('.').pop();
+				api.commands.push(command);
+			});
+			database.push(api);
+		}
+	});
+	console.log('database: ' + util.inspect(dataabse));
 }
