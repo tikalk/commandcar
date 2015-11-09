@@ -10,67 +10,67 @@ var _ = require('underscore');
 var request = require('request');
 var fs = require('fs');
 var jsonic = require('jsonic');
-buildDatabaseFromFileSystem();
+var database = buildDatabaseFromFileSystem();
 
-var database = [
-		{
-			api: 'facebook',
-			protocol: 'https',
-			host: 'graph.facebook.com',
-			commands: [{
-				 command: 'get',
-				 path_template: '/{uid}?fields=name&access_token={access_token}',
-				 ret: 'name',
-				 options: [
-				           {
-				        	   short: 'u',
-				        	   long: 'uid',
-				        	   def: 'user id',
-				        	   desc: 'facebook user id',
-				           },
-				           {
-				        	   short: 'a',
-				        	   long: 'access_token',
-				        	   def: 'access token',
-				        	   desc: 'access_token',
-				           },
-				           
-				 ]
-			 }]
-		},
-		{
-			api: 'dropbox',
-			protocol: 'https',
-			host: 'api.dropbox.com',
-			commands: [{
-				 command: 'quota_info',
-				 path_template: '/1/account/info?access_token={access_token}',
-				 ret: 'quota_info',
-				 options: [
-				           {
-				        	   short: 'a',
-				        	   long: 'access_token',
-				        	   def: 'access token',
-				        	   desc: 'access_token',
-				           }
-				 ]
-			}]
-		}
-];
+//var database = [
+//		{
+//			name: 'facebook',
+//			protocol: 'https',
+//			host: 'graph.facebook.com',
+//			commands: [{
+//				 name: 'get',
+//				 path_template: '/{uid}?fields=name&access_token={access_token}',
+//				 ret: 'name',
+//				 options: [
+//				           {
+//				        	   short: 'u',
+//				        	   long: 'uid',
+//				        	   def: 'user id',
+//				        	   desc: 'facebook user id',
+//				           },
+//				           {
+//				        	   short: 'a',
+//				        	   long: 'access_token',
+//				        	   def: 'access token',
+//				        	   desc: 'access_token',
+//				           },
+//				           
+//				 ]
+//			 }]
+//		},
+//		{
+//			name: 'dropbox',
+//			protocol: 'https',
+//			host: 'api.dropbox.com',
+//			commands: [{
+//				 name: 'quota_info',
+//				 path_template: '/1/account/info?access_token={access_token}',
+//				 ret: 'quota_info',
+//				 options: [
+//				           {
+//				        	   short: 'a',
+//				        	   long: 'access_token',
+//				        	   def: 'access token',
+//				        	   desc: 'access_token',
+//				           }
+//				 ]
+//			}]
+//		}
+//];
 
 _.each(database,function(api){
-//	console.log('processing commands for ' + api.api);
+//	console.log('processing commands for ' + api.name);
 	
 	_.each(api.commands,function(command){
-//		console.log('adding command: ' + api.api + '_' + command.command);	
-		var theCommand = program.command(api.api + '_' + command.command);
+//		console.log('adding command: ' + api.name + '_' + command.name);	
+		var theCommand = program.command(api.name + '_' + command.name);
 		_.each(command.options,function(option){
 //			console.log('adding option: ' + '-' + option.short + ', --' + option.long + ' [' + option.def + ']');
 			theCommand.option('-' + option.short + ', --' + option.long + ' [' + option.def + ']',option.desc);
 		});
 		theCommand.action(function(options){
-//			console.log('should call ' + api.api + '_' + command.command + ' with uid ')
-			performRequest(api.api,command.command,options,function(err,ret){
+//			console.log('should call ' + api.name + '_' + command.name + ' with uid ')
+			performRequest(api.name,command.name,options,function(err,ret){
 				if(err){
 					console.log('error: ' + err);
 				}else{
@@ -156,16 +156,15 @@ function buildDatabaseFromFileSystem(){
 			api = jsonic(fs.readFileSync('./apis/' + file + '/api.json', 'utf-8'));
 			api['name'] = file;
 			api['commands'] = [];
-			console.log('working with an api: ' + util.inspect(api));
 			var commands = fs.readdirSync('./apis/' + file + '/commands');
 			_.each(commands,function(commandFile){
 				var command = jsonic(fs.readFileSync('./apis/' + file + '/commands/' + commandFile, 'utf-8'));
-				command['name'] = commandFile.split('.').pop();
+				command['name'] = commandFile.split('.')[0];
 				api.commands.push(command);
 			});
-			console.log('finsihed with an api: ' + util.inspect(api));
 			database.push(api);
 		}
 	});
-	console.log('database: ' + util.inspect(database));
+	console.log('database: ' + util.inspect(database,{depth:8}));
+	return database;
 }
