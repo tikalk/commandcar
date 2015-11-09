@@ -127,8 +127,8 @@ function performRequest(api,command,options,callback){
 	var path = '';
 	
 	// TBD add port (i.e. default 80 but surely not always)
-	var currentApi = _.find(database,function(item){return item.api == api;});
-	var currentCommand = _.find(currentApi.commands,function(item){return item.command == command;});
+	var currentApi = _.find(database,function(item){return item.name == api;});
+	var currentCommand = _.find(currentApi.commands,function(item){return item.name == command;});
 	
 	url = currentApi.protocol + '://' + currentApi.host;
 	path = currentCommand.path_template;
@@ -139,7 +139,17 @@ function performRequest(api,command,options,callback){
 	
 //	console.log('url: ' + url);
 	
-	request(url,function(error,response,body){
+	var verb = 'GET';
+	if('verb' in currentCommand){
+		verb = currentCommand.verb;
+	}
+	
+	var requestOptions = {
+		url: url,
+		method: verb
+	}
+	
+	request(requestOptions,function(error,response,body){
 		if(error){
 			callback(error);
 		}else if(response.statusCode != 200){
