@@ -7,6 +7,7 @@
 var program = require('commander');
 var util = require('util');
 var _ = require('underscore');
+var us = require('underscore.string');
 var request = require('request');
 var fs = require('fs');
 var jsonic = require('jsonic');
@@ -144,9 +145,30 @@ function performRequest(api,command,options,callback){
 		verb = currentCommand.verb;
 	}
 	
+	var headers = {};
+	if('headers' in currentApi){
+		headers = currentApi.headers;
+	}
+	if('headers' in currentCommand){
+		_.each(currentCommand.headers,function(value,key){
+			if(us(value).startsWith('{') && us(value).endsWith('}')){
+				var optionName = value.substr(1,value.length - 2);
+				value = options[optionName];
+			}
+			headers[key] = value;
+		});
+	}
+	
+	if('oauth_headers_access_token_option_name' in currentApi){
+		headers['Authorization'] = 'Bearer ' + options[currentApi.oauth_headers_access_token_option_name];
+	}
+	
+	console.log('headers: ' + util.inspect(headers));
+	
 	var requestOptions = {
 		url: url,
-		method: verb
+		method: verb,
+		headers: headers,
 	}
 	
 	request(requestOptions,function(error,response,body){
