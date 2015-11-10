@@ -159,17 +159,44 @@ function performRequest(api,command,options,callback){
 		});
 	}
 	
+	var body = false;
+	if('body' in currentCommand){
+		var optionName = currentCommand.body.substr(1,currentCommand.body.length - 2);
+		body = options[optionName]
+		
+	}
+	
+	var form = false;
+	if('form' in currentCommand){
+		_.each(currentCommand.form,function(value,key){
+			if(us(value).startsWith('{') && us(value).endsWith('}')){
+				var optionName = value.substr(1,value.length - 2);
+				value = options[optionName];
+			}
+			form[key] = value;
+		});
+	}
+	
 	if('oauth_headers_access_token_option_name' in currentApi){
 		headers['Authorization'] = 'Bearer ' + options[currentApi.oauth_headers_access_token_option_name];
 	}
 	
-	console.log('headers: ' + util.inspect(headers));
+	
 	
 	var requestOptions = {
 		url: url,
 		method: verb,
 		headers: headers,
 	}
+	
+	if(body){
+		requestOptions['body'] = body;
+	}
+	if(form){
+		requestOptions['form'] = form;
+	}
+	
+	console.log('requestOptions: ' + util.inspect(requestOptions));
 	
 	request(requestOptions,function(error,response,body){
 		if(error){
