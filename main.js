@@ -166,7 +166,10 @@ function performRequest(api,command,options,callback){
 		
 	}
 	
-	var form = false;
+	
+	var form = {};
+	
+	console.log('is form: ' + (form? 'y':'n'))
 	if('form' in currentCommand){
 		_.each(currentCommand.form,function(value,key){
 			if(us(value).startsWith('{') && us(value).endsWith('}')){
@@ -176,6 +179,8 @@ function performRequest(api,command,options,callback){
 			form[key] = value;
 		});
 	}
+	console.log('form: ' + util.inspect(form));
+
 	
 	if('oauth_headers_access_token_option_name' in currentApi){
 		headers['Authorization'] = 'Bearer ' + options[currentApi.oauth_headers_access_token_option_name];
@@ -192,7 +197,7 @@ function performRequest(api,command,options,callback){
 	if(body){
 		requestOptions['body'] = body;
 	}
-	if(form){
+	if(!_.isEmpty(form)){
 		requestOptions['form'] = form;
 	}
 	
