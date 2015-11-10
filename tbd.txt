@@ -1,0 +1,4 @@
+add install commad
+add --verbose?
+add use command, so can add credentials for api for use in all future commands
+	example: commandcar facebook use __access_token 12345667 

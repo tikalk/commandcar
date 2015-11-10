@@ -1,0 +1,4 @@
+{
+	protocol: "https",
+	host: "api.dropbox.com",
+}

@@ -1,0 +1,9 @@
+{
+	protocol: "https",
+	host: "www.googleapis.com",
+	oauth_headers_access_token_option_name: "access_token",
+	headers: {
+		"Content-Type": "application/json",
+	},
+	
+}
