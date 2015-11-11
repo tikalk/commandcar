@@ -74,7 +74,8 @@ _.each(database,function(api){
 	
 	_.each(api.commands,function(command){
 //		console.log('adding command: ' + api.name + '_' + command.name);	
-		var theCommand = program.command(api.name + '_' + command.name);
+//		var theCommand = program.command(api.name + '_' + command.name);
+		var theCommand = program.command(api.name + ' <' + command.name + '>');
 		_.each(command.options,function(option){
 //			console.log('adding option: ' + '-' + option.short + ', --' + option.long + ' [' + option.def + ']');
 			theCommand.option('-' + option.short + ', --' + option.long + ' [' + option.def + ']',option.desc);
