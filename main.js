@@ -113,9 +113,14 @@ _.each(database,function(api){
 program.parse(process.argv);
 
 function performCommand(api,command,options,callback){
-	if(command == 'use'){
-		use(api,options,callback)
-	}else{
+	switch(command){
+	case 'use':
+		use(api,options,callback);
+		break;
+	case 'unuse':
+		unuse(api,callback);
+		break;
+	default:
 		performRequest(api,command,options,callback);
 	}
 }
@@ -132,7 +137,15 @@ function use(api,options,callback){
 	}catch(e){
 		callback(e);
 	}
-	
+}
+
+function unuse(api,callback){
+	try{
+		fs.unlinkSync('./use/' + api + '.json');
+		callback(null);
+	}catch(e){
+		callback(e);
+	}
 }
 
 function performRequest(api,command,options,callback){
@@ -264,7 +277,11 @@ function buildDatabaseFromFileSystem(){
 					name: 'use',
 					options: api.use_options,
 				}
+				var unuseCommand = {
+					name: 'unuse'
+				}
 				api.commands.push(useCommand);
+				api.commands.push(unuseCommand);
 			}
 			database.push(api);
 		}
