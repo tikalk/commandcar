@@ -1,4 +1,12 @@
 {
 	protocol: "https",
 	host: "api.dropbox.com",
+	use_options: [
+	           {
+	        	   short: 'a',
+	        	   long: 'access_token',
+	        	   def: 'access token',
+	        	   desc: 'access_token',
+	           }
+	 ]
 }

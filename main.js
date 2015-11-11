@@ -81,7 +81,7 @@ _.each(database,function(api){
 		});
 		theCommand.action(function(options){
 //			console.log('should call ' + api.name + '_' + command.name + ' with uid ')
-			performRequest(api.name,command.name,options,function(err,ret){
+			performCommand(api.name,command.name,options,function(err,ret){
 				if(err){
 					console.log('error: ' + err);
 				}else{
@@ -112,7 +112,28 @@ _.each(database,function(api){
 
 program.parse(process.argv);
 
+function performCommand(api,command,options,callback){
+	if(command == 'use'){
+		use(api,options,callback)
+	}else{
+		performRequest(api,command,options,callback);
+	}
+}
 
+function use(api,options,callback){
+	try{
+		var currentApi = _.find(database,function(item){return item.name == api;});
+		var useOptions = {};
+		_.each(currentApi.use_options,function(useOption){
+			useOptions[useOption.long] = options[useOption.long];
+		});
+		fs.writeFileSync('./use/' + api + '.json',JSON.stringify(useOptions));
+		callback(null);
+	}catch(e){
+		callback(e);
+	}
+	
+}
 
 function performRequest(api,command,options,callback){
 	
@@ -128,6 +149,8 @@ function performRequest(api,command,options,callback){
 	var path = '';
 	
 	// TBD add port (i.e. default 80 but surely not always)
+	// TBD consider passing the entire api and command objects, and not only thier names, 
+	// hence not having to find them...
 	var currentApi = _.find(database,function(item){return item.name == api;});
 	var currentCommand = _.find(currentApi.commands,function(item){return item.name == command;});
 	
@@ -236,6 +259,13 @@ function buildDatabaseFromFileSystem(){
 				command['name'] = commandFile.split('.')[0];
 				api.commands.push(command);
 			});
+			if('use_options' in api){
+				var useCommand = {
+					name: 'use',
+					options: api.use_options,
+				}
+				api.commands.push(useCommand);
+			}
 			database.push(api);
 		}
 	});
