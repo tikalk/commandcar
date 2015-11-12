@@ -11,6 +11,7 @@ var us = require('underscore.string');
 var request = require('request');
 var fs = require('fs');
 var jsonic = require('jsonic');
+var Rsync = require('rsync');
 
 /*
  * load database
@@ -74,8 +75,8 @@ _.each(database,function(api){
 	
 	_.each(api.commands,function(command){
 //		console.log('adding command: ' + api.name + '_' + command.name);	
-//		var theCommand = program.command(api.name + '_' + command.name);
-		var theCommand = program.command(api.name + ' <' + command.name + '>');
+		var theCommand = program.command(api.name + '_' + command.name);
+//		var theCommand = program.command(api.name + ' <' + command.name + '>');
 		_.each(command.options,function(option){
 //			console.log('adding option: ' + '-' + option.short + ', --' + option.long + ' [' + option.def + ']');
 			theCommand.option('-' + option.short + ', --' + option.long + ' [' + option.def + ']',option.desc);
@@ -94,6 +95,23 @@ _.each(database,function(api){
 	
 })
 
+program
+	.command('load')
+	.option('-l, --location [location of directory]','location of directory')
+	.action(function(options){
+		console.log('loading ' + options.location);
+		var rsync = new Rsync()
+					.flags('avz')
+					.source(options.location)
+					.destination('./apis/');
+		rsync.execute(function(error, code, cmd) {
+		    if(error){
+		    	// what now?
+		    }else{
+		    	buildDatabaseFromFileSystem();
+		    }
+		});
+	});
 
 //program
 //	.command('facebook_get')
@@ -243,7 +261,7 @@ function performRequest(api,command,options,callback){
 	request(requestOptions,function(error,response,body){
 		if(error){
 			callback(error);
-		}else if(response.statusCode != 200){
+		}else if(response.statusCode < 200 || response.statusCode > 299){
 //			console.log('status code: ' + response.statusCode);
 			callback(body);
 		}else{
