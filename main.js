@@ -107,7 +107,7 @@ program
 					.destination(__dirname + '/apis/');
 		rsync.execute(function(error, code, cmd) {
 		    if(error){
-		    	// what now?
+		    	console.log(code + ' : ' + error);
 		    }else{
 		    	buildDatabaseFromFileSystem();
 		    }
