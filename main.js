@@ -143,7 +143,10 @@ program
 			if(err){
 				console.log('error installing from npm: ' + err);
 			}else{
-				npm.commands.install(__dirname + '/apis/',["@shaharsol/" + options.api], function (er, data) {
+				npm.commands.install(__dirname,["@shaharsol/" + options.api], function (er, data) {
+					if(er){
+						console.log('npm error: ' + er);
+					}
 					buildDatabaseFromFileSystem();
 				});
 				npm.on("log", function (message) {
