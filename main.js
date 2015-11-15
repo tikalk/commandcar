@@ -20,8 +20,8 @@ var npm = require('npm');
 //var SCOPE = '@commandcar';
 var SCOPE = '@shaharsol';
 
-var API_DIR = __dirname + '/node_modules/' + SCOPE;
-console.log('api dir: ' + API_DIR);
+var APIS_DIR = __dirname + '/node_modules/' + SCOPE;
+console.log('api dir: ' + APIS_DIR);
 /*
  * make sure we have a USE dir
  */
@@ -124,7 +124,7 @@ program
 		var rsync = new Rsync()
 					.flags('avz')
 					.source(options.location)
-					.destination(__dirname + '/apis/');
+					.destination(APIS_DIR);
 		rsync.execute(function(error, code, cmd) {
 		    if(error){
 		    	console.log(code + ' : ' + error);
@@ -144,7 +144,7 @@ program
 				console.log('error installing from npm: ' + err);
 			}else{
 				npm.commands.install(["@shaharsol/" + options.api], function (er, data) {
-				
+					buildDatabaseFromFileSystem();
 				});
 				npm.on("log", function (message) {
 					console.log(message);
@@ -322,34 +322,41 @@ function buildDatabaseFromFileSystem(){
 	var database = [];
 	var api;
 //	var files = fs.readdirSync(__dirname + '/apis/');
-	var files = fs.readdirSync(API_DIR);
-	_.each(files,function(file){
-//		console.log('file: ' + util.inspect(file));
-		if(fs.lstatSync(API_DIR + '/' + file).isDirectory()){
-//			console.log('file: ' + __dirname + '/apis/' + file + ' is a directory');
-			api = jsonic(fs.readFileSync(API_DIR + '/' + file + '/api.json', 'utf8'));
-			api['name'] = file;
-			api['commands'] = [];
-			var commands = fs.readdirSync(API_DIR + '/' + file + '/commands');
-			_.each(commands,function(commandFile){
-				var command = jsonic(fs.readFileSync(API_DIR + '/' + file + '/commands/' + commandFile, 'utf8'));
-				command['name'] = commandFile.split('.')[0];
-				api.commands.push(command);
+	try{
+		if(fs.lstatSync(APIS_DIR).isDirectory()){
+			var files = fs.readdirSync(APIS_DIR);
+			_.each(files,function(file){
+//				console.log('file: ' + util.inspect(file));
+				if(fs.lstatSync(APIS_DIR + '/' + file).isDirectory()){
+//					console.log('file: ' + __dirname + '/apis/' + file + ' is a directory');
+					api = jsonic(fs.readFileSync(APIS_DIR + '/' + file + '/api.json', 'utf8'));
+					api['name'] = file;
+					api['commands'] = [];
+					var commands = fs.readdirSync(APIS_DIR + '/' + file + '/commands');
+					_.each(commands,function(commandFile){
+						var command = jsonic(fs.readFileSync(APIS_DIR + '/' + file + '/commands/' + commandFile, 'utf8'));
+						command['name'] = commandFile.split('.')[0];
+						api.commands.push(command);
+					});
+					if('use_options' in api){
+						var useCommand = {
+							name: 'use',
+							options: api.use_options,
+						}
+						var unuseCommand = {
+							name: 'unuse'
+						}
+						api.commands.push(useCommand);
+						api.commands.push(unuseCommand);
+					}
+					database.push(api);
+				}
 			});
-			if('use_options' in api){
-				var useCommand = {
-					name: 'use',
-					options: api.use_options,
-				}
-				var unuseCommand = {
-					name: 'unuse'
-				}
-				api.commands.push(useCommand);
-				api.commands.push(unuseCommand);
-			}
-			database.push(api);
-		}
-	});
+		}	
+	}catch(e){
+		
+	}
+	
 //	console.log('database: ' + util.inspect(database,{depth:8}));
 	fs.writeFileSync(os.tmpdir() + 'cache.json',JSON.stringify(database));
 	return database;
