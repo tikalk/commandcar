@@ -29,6 +29,11 @@ Search for the API you wish to install, and then install it like this:
 commandcar install facebook
 ```
 
+```
+npm install @commandcar/facebook -g
+```
+
+
 # Loading an API
 
 Define an API (see next section) and load it like this:

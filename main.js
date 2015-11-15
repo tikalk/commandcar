@@ -13,7 +13,7 @@ var fs = require('fs');
 var jsonic = require('jsonic');
 var Rsync = require('rsync');
 var os = require('os');
-
+var npm = require('npm');
 /*
  * load database
  */
@@ -128,8 +128,21 @@ program
 	.command('install')
 	.option('-a, --api [api name]','api name')
 	.action(function(options){
-		console.log('installing ' + options.api);
-		
+		console.log('installing ' + "@shaharsol/" + options.api);
+		npm.load(function (err) {
+			if(err){
+				console.log('error installing from npm: ' + err);
+			}else{
+				npm.commands.install(["@shaharsol/" + options.api], function (er, data) {
+				
+				});
+				npm.on("log", function (message) {
+					console.log(message);
+				});
+				
+			}
+		});
+
 	});
 
 
