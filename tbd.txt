@@ -1,3 +1,5 @@
+switch "load" to work with node_modules instead of /apis/
+
 use url module to parse the url
 use path module everywhere appropriate so it can work on windows 
 api versions? (facebook v2.1 vs v2.4) how to handle?

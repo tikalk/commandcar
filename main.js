@@ -15,15 +15,13 @@ var Rsync = require('rsync');
 var os = require('os');
 var npm = require('npm');
 /*
- * load database
+ * ENV
  */
+//var SCOPE = '@commandcar';
+var SCOPE = '@shaharsol';
 
-var database = loadDatabaseFromCache();
-if(!database){
-//	console.log('couldnt find cache, building database');
-	database = buildDatabaseFromFileSystem();
-}
-
+var API_DIR = __dirname + '/node_modules/' + SCOPE;
+console.log('api dir: ' + API_DIR);
 /*
  * make sure we have a USE dir
  */
@@ -34,6 +32,18 @@ try{
 }catch(e){
 	// ignore. it means it already exists
 }
+
+/*
+ * load database
+ */
+
+var database = loadDatabaseFromCache();
+if(!database){
+//	console.log('couldnt find cache, building database');
+	database = buildDatabaseFromFileSystem();
+}
+
+
 
 //var database = [
 //		{
@@ -311,18 +321,18 @@ function performRequest(api,command,options,callback){
 function buildDatabaseFromFileSystem(){
 	var database = [];
 	var api;
-//	var files = fs.readdirSync('./apis/');
-	var files = fs.readdirSync(__dirname + '/apis/');
+//	var files = fs.readdirSync(__dirname + '/apis/');
+	var files = fs.readdirSync(API_DIR);
 	_.each(files,function(file){
 //		console.log('file: ' + util.inspect(file));
-		if(fs.lstatSync(__dirname + '/apis/' + file).isDirectory()){
+		if(fs.lstatSync(API_DIR + '/' + file).isDirectory()){
 //			console.log('file: ' + __dirname + '/apis/' + file + ' is a directory');
-			api = jsonic(fs.readFileSync(__dirname + '/apis/' + file + '/api.json', 'utf8'));
+			api = jsonic(fs.readFileSync(API_DIR + '/' + file + '/api.json', 'utf8'));
 			api['name'] = file;
 			api['commands'] = [];
-			var commands = fs.readdirSync(__dirname + '/apis/' + file + '/commands');
+			var commands = fs.readdirSync(API_DIR + '/' + file + '/commands');
 			_.each(commands,function(commandFile){
-				var command = jsonic(fs.readFileSync(__dirname + '/apis/' + file + '/commands/' + commandFile, 'utf8'));
+				var command = jsonic(fs.readFileSync(API_DIR + '/' + file + '/commands/' + commandFile, 'utf8'));
 				command['name'] = commandFile.split('.')[0];
 				api.commands.push(command);
 			});
@@ -348,6 +358,7 @@ function buildDatabaseFromFileSystem(){
 function loadDatabaseFromCache(){
 	var cache = null;
 	try{
+		console.log('reading cache from: ' + os.tmpdir() + 'cache.json');
 		cache = fs.readFileSync(os.tmpdir() + 'cache.json', 'utf-8');
 		cache = jsonic(cache);
 	}catch(e){
