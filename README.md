@@ -54,6 +54,15 @@ API commands are described each in its own json file under the `commands` sub di
 
 # api.json
 
+The file should contain the most basic info in order to generate API calls to the API. for example:
+
+```
+{
+	protocol: "https",
+	hostname: "graph.facebook.com",
+}
+```
+
 # command json
 
 

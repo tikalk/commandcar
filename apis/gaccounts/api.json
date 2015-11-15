@@ -1,4 +1,4 @@
 {
 	protocol: "https",
-	host: "accounts.google.com",
+	hostname: "accounts.google.com",
 }

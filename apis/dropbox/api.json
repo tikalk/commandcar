@@ -1,6 +1,6 @@
 {
 	protocol: "https",
-	host: "api.dropbox.com",
+	hostname: "api.dropbox.com",
 	use_options: [
 	           {
 	        	   short: 'a',
