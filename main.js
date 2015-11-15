@@ -24,6 +24,16 @@ if(!database){
 	database = buildDatabaseFromFileSystem();
 }
 
+/*
+ * make sure we have a USE dir
+ */
+
+var USE_DIR = os.tmpdir() + 'use';
+try{
+	fs.mkdirSync(USE_DIR);
+}catch(e){
+	// ignore. it means it already exists
+}
 
 //var database = [
 //		{
@@ -162,7 +172,7 @@ function use(api,options,callback){
 		_.each(currentApi.use_options,function(useOption){
 			useOptions[useOption.long] = options[useOption.long];
 		});
-		fs.writeFileSync('./use/' + api + '.json',JSON.stringify(useOptions));
+		fs.writeFileSync(USE_DIR + '/' + api + '.json',JSON.stringify(useOptions));
 		callback(null);
 	}catch(e){
 		callback(e);
@@ -171,7 +181,7 @@ function use(api,options,callback){
 
 function unuse(api,callback){
 	try{
-		fs.unlinkSync('./use/' + api + '.json');
+		fs.unlinkSync(USE_DIR + '/' + api + '.json');
 		callback(null);
 	}catch(e){
 		callback(e);
