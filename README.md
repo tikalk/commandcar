@@ -65,7 +65,29 @@ The file should contain the most basic info in order to generate API calls to th
 
 # command json
 
+Specific info for each command. for example:
 
+```
+{
+	 path_template: '/{uid}?fields=name&access_token={access_token}',
+	 ret: 'name',
+	 options: [
+       {
+    	   short: 'u',
+    	   long: 'uid',
+    	   def: 'user id',
+    	   desc: 'facebook user id',
+       },
+       {
+    	   short: 'a',
+    	   long: 'access_token',
+    	   def: 'access token',
+    	   desc: 'access_token',
+       },
+	 ]
+ }
+			 
+```
 
 # use command
 
