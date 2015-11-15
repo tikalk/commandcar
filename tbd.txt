@@ -1,3 +1,9 @@
+use url module to parse the url
+use path module everywhere appropriate so it can work on windows 
+api versions? (facebook v2.1 vs v2.4) how to handle?
+api endpoints as sub dirs? which will create dropbox.user.info instead of dropbox.user_info
+
+
 add install commad
 add --verbose?
 add use command, so can add credentials for api for use in all future commands
