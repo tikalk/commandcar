@@ -3,15 +3,13 @@
   "version": "0.0.1",
   "private": true,
   "bin": "./main.js",
-  "scripts": {
-    "start": "node app.js"
-  },
   "dependencies": {
     "underscore": "*",
     "underscore.string": "*",
     "jsonic": "*",
     "commander": "*",
     "rsync": "*",
+    "nodegit": "*",
     "request": "*"
   }
 }

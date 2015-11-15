@@ -113,6 +113,16 @@ program
 		});
 	});
 
+program
+	.command('install')
+	.option('-a, --api [api name]','api name')
+	.action(function(options){
+		console.log('installing ' + options.api);
+		
+	});
+
+
+
 //program
 //	.command('facebook_get')
 //	.option('-u, --uid [user id]','facebook user id')
