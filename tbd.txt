@@ -1,4 +1,6 @@
 switch "load" to work with node_modules instead of /apis/
+why need to manually delete the cache after install?
+
 
 use url module to parse the url
 use path module everywhere appropriate so it can work on windows 
