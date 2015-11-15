@@ -2,6 +2,11 @@
 
 commandcar is a CLI tool that can easily communicate with any API. It simplifies unreadable and complicated curl commands, and has some nice features to make automation of API calls much simpler.
 
+Here's an example of what it can look like
+```
+commandcar facebook.like --post_id 123456789 --access_token abcdefghijklmnopqrstuvwxyz 
+```
+
 # Installing
 
 use npm to install commandcar
@@ -30,4 +35,14 @@ API commands are described each in its own json file under the `commands` sub di
       +- like.json
       +- comment.json
 ```
+
+# api.json
+
+# command json
+
+# Loading an API
+
+# Installing an API
+
+# use command
 
