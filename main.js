@@ -12,6 +12,7 @@ var request = require('request');
 var fs = require('fs');
 var jsonic = require('jsonic');
 var Rsync = require('rsync');
+var os = require('os');
 
 /*
  * load database
@@ -103,7 +104,7 @@ program
 		var rsync = new Rsync()
 					.flags('avz')
 					.source(options.location)
-					.destination('./apis/');
+					.destination(__dirname + '/apis/');
 		rsync.execute(function(error, code, cmd) {
 		    if(error){
 		    	// what now?
@@ -287,17 +288,18 @@ function performRequest(api,command,options,callback){
 function buildDatabaseFromFileSystem(){
 	var database = [];
 	var api;
-	var files = fs.readdirSync('./apis/');
+//	var files = fs.readdirSync('./apis/');
+	var files = fs.readdirSync(__dirname + '/apis/');
 	_.each(files,function(file){
 //		console.log('file: ' + util.inspect(file));
-		if(fs.lstatSync('./apis/' + file).isDirectory()){
-//			console.log('file: ' + './apis/' + file + ' is a directory');
-			api = jsonic(fs.readFileSync('./apis/' + file + '/api.json', 'utf8'));
+		if(fs.lstatSync(__dirname + '/apis/' + file).isDirectory()){
+//			console.log('file: ' + __dirname + '/apis/' + file + ' is a directory');
+			api = jsonic(fs.readFileSync(__dirname + '/apis/' + file + '/api.json', 'utf8'));
 			api['name'] = file;
 			api['commands'] = [];
-			var commands = fs.readdirSync('./apis/' + file + '/commands');
+			var commands = fs.readdirSync(__dirname + '/apis/' + file + '/commands');
 			_.each(commands,function(commandFile){
-				var command = jsonic(fs.readFileSync('./apis/' + file + '/commands/' + commandFile, 'utf8'));
+				var command = jsonic(fs.readFileSync(__dirname + '/apis/' + file + '/commands/' + commandFile, 'utf8'));
 				command['name'] = commandFile.split('.')[0];
 				api.commands.push(command);
 			});
@@ -316,14 +318,14 @@ function buildDatabaseFromFileSystem(){
 		}
 	});
 //	console.log('database: ' + util.inspect(database,{depth:8}));
-	fs.writeFileSync('./cache.json',JSON.stringify(database));
+	fs.writeFileSync(os.tmpdir() + 'cache.json',JSON.stringify(database));
 	return database;
 }
 
 function loadDatabaseFromCache(){
 	var cache = null;
 	try{
-		cache = fs.readFileSync('./cache.json', 'utf-8');
+		cache = fs.readFileSync(os.tmpdir() + 'cache.json', 'utf-8');
 		cache = jsonic(cache);
 	}catch(e){
 		

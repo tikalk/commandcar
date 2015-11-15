@@ -1,15 +1,15 @@
 {
   "name": "commandcar",
-  "version": "0.0.1",
-  "private": true,
-  "bin": "./main.js",
+  "version": "0.0.5",
+  "bin": {
+  	"commandcar": "main.js"
+  },
   "dependencies": {
     "underscore": "*",
     "underscore.string": "*",
     "jsonic": "*",
     "commander": "*",
     "rsync": "*",
-    "nodegit": "*",
     "request": "*"
   }
 }
