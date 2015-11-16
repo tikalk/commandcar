@@ -21,7 +21,7 @@ var path = require('path');
  * ENV
  */
 //var SCOPE = '@commandcar';
-var SCOPE = '@shaharsol';
+var SCOPE = '@commandcar';
 
 var APIS_DIR = path.join(__dirname,'node_modules',SCOPE);
 console.log('api dir: ' + APIS_DIR);
@@ -142,12 +142,12 @@ program
 	.command('install')
 	.option('-a, --api [api name]','api name')
 	.action(function(options){
-		console.log('installing ' + "@shaharsol/" + options.api);
+		console.log('installing ' + SCOPE + "/" + options.api);
 		npm.load(function (err) {
 			if(err){
 				console.log('error installing from npm: ' + err);
 			}else{
-				npm.commands.install(__dirname,["@shaharsol/" + options.api], function (er, data) {
+				npm.commands.install(__dirname,[SCOPE + "/" + options.api], function (er, data) {
 					if(er){
 						console.log('npm error: ' + er);
 					}
