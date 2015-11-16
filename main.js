@@ -313,8 +313,15 @@ function performRequest(api,command,options,callback){
 			callback(body);
 		}else{
 //			console.log('body is: ' + util.inspect(body));
+			var ret;
+			if('ret' in currentCommand){
+				var data = JSON.parse(body);
+				ret = data[currentCommand['ret']];
+			}else{
+				ret = body;
+			}
 			var data = JSON.parse(body);
-			callback(null,data[currentCommand['ret']]);
+			callback(null,ret);
 		}
 	})
 	
