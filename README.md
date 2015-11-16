@@ -1,6 +1,6 @@
 # commandcar - curl on steroids
 
-commandcar is a CLI tool that can easily communicate with any API. It simplifies unreadable and complicated curl commands, and has some nice features to make automation of API calls much simpler.
+commandcar is a CLI tool that can easily communicate with any API. It simplifies unreadable and complicated curl commands, and has some nice features to make automation of API calls much simpler and bash scripts more streamlined.
 
 Here's an example of what it can look like
 ```
@@ -9,30 +9,23 @@ commandcar facebook.like --post_id 123456789 --access_token abcdefghijklmnopqrst
 
 # Installing
 
-use npm to install commandcar
+use [npm](https://www.npmjs.com/) to install commandcar
 
 ```
-npm install commandcar -g
+sudo npm install commandcar -g
 ``` 
-
-This will install commandcar globally. Depending on your OS, you may want to use sudo to install it.
 
 # Using commandcar
 
-A fresh commandcar install is a powerful though empty skeleton. In order to make commandcar usable you need to `load` or `install` an API definition. Basically, you `load` your own API definitions, and when you `install`, you install an API definition that another generous developer had already defined and pushed to the commandcar repository.
+A fresh commandcar install is a powerful yet empty skeleton. In order to make commandcar usable you first need to `load` or `install` an API definition. Basically, you `load` your own API definitions, and when you `install`, you install an API definition that another generous developer had already defined and pushed to the commandcar repository.
 
 # Installing an API
 
-Search for the API you wish to install, and then install it like this:
+Search for the API you wish to install by browsing our [apis repository](https://github.com/shaharsol/commandcar/tree/master/apis), and then install it like this:
 
 ```
-commandcar install facebook
+sudo commandcar install facebook
 ```
-
-```
-npm install @commandcar/facebook -g
-```
-
 
 # Loading an API
 
