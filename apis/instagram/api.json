@@ -1,12 +1,12 @@
 {
-	protocol: "https",
-	hostname: "api.instagram.com",
-	use_options: [
+	"protocol": "https",
+	"hostname": "api.instagram.com",
+	"use_options": [
        {
-    	   short: 'a',
-    	   long: 'access_token',
-    	   def: 'access token',
-    	   desc: 'access_token',
+    	   "short": "a",
+    	   "long": "access_token",
+    	   "def": "access token",
+    	   "desc": "access_token",
        }
 	 ]
 }
