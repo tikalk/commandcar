@@ -34,7 +34,7 @@ sudo commandcar install facebook
 Define an API in a folder somewhere on your local machine (see next section) and load it like this:
 
 ```
-commandcar load ~/dev/commandcar/apis/my_api
+commandcar load --location ~/dev/commandcar/apis/my_api
 ```
 
 # API Definition
