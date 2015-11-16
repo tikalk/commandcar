@@ -247,7 +247,7 @@ function performRequest(api,command,options,callback){
 //	theUrl = currentApi.protocol + '://' + currentApi.hostname;
 	path = currentCommand.path_template;
 	_.each(currentCommand.options,function(option){
-		path = path.replace('{' + option.long + '}',options[option.long]);
+		path = path.replace('{' + option.long + '}',(typeof options[option.long] == 'undefined' ? '' : options[option.long]));
 	});
 //	theUrl += path;
 	
