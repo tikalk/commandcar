@@ -1,0 +1,25 @@
+{
+	 path_template: '/v1/users/search?access_token={access_token}&q={query}&count={count}',
+	 options: [
+	           {
+	        	   short: 'a',
+	        	   long: 'access_token',
+	        	   def: 'access token',
+	        	   desc: 'access_token',
+	           },
+	           {
+	        	   short: c',
+	        	   long: 'count',
+	        	   def: 'count',
+	        	   desc: 'count',
+	           },
+	           {
+	        	   short: 'q',
+	        	   long: 'query',
+	        	   def: 'query',
+	        	   desc: 'query',
+	           },
+	           
+	 ]
+ }
+			 
