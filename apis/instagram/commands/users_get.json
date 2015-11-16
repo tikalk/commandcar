@@ -1,17 +1,17 @@
 {
-	 path_template: '/v1/users/{user_id}/?access_token={access_token}',
-	 options: [
+	 "path_template": "/v1/users/{user_id}/?access_token={access_token}",
+	 "options": [
 	           {
-	        	   short: 'u',
-	        	   long: 'user_id',
-	        	   def: 'user id',
-	        	   desc: 'facebook user id',
+	        	   "short": "u",
+	        	   "long": "user_id",
+	        	   "def": "user id",
+	        	   "desc": "facebook user id",
 	           },
 	           {
-	        	   short: 'a',
-	        	   long: 'access_token',
-	        	   def: 'access token',
-	        	   desc: 'access_token',
+	        	   "short": "a",
+	        	   "long": "access_token",
+	        	   "def": "access token",
+	        	   "desc": "access_token",
 	           },
 	           
 	 ]
