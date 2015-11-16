@@ -1,35 +1,35 @@
 {
-	 path_template: '/v1/users/self/feed?access_token={access_token}&count={count}&min_id={min_id}&max_id={max_id}',
-	 options: [
+	 "path_template": "/v1/users/self/feed?access_token={access_token}&count={count}&min_id={min_id}&max_id={max_id}",
+	 "options": [
 	           {
-	        	   short: 'u',
-	        	   long: 'user_id',
-	        	   def: 'user id',
-	        	   desc: 'user id',
+	        	   "short": "u",
+	        	   "long": "user_id",
+	        	   "def": "user id",
+	        	   "desc": "user id",
 	           },
 	           {
-	        	   short: 'a',
-	        	   long: 'access_token',
-	        	   def: 'access token',
-	        	   desc: 'access_token',
+	        	   "short": "a",
+	        	   "long": "access_token",
+	        	   "def": "access token",
+	        	   "desc": "access_token",
 	           },
 	           {
-	        	   short: c',
-	        	   long: 'count',
-	        	   def: 'count',
-	        	   desc: 'count',
+	        	   "short": c",
+	        	   "long": "count",
+	        	   "def": "count",
+	        	   "desc": "count",
 	           },
 	           {
-	        	   short: 'n',
-	        	   long: 'min_id',
-	        	   def: 'min_id,
-	        	   desc: 'min_id',
+	        	   "short": "n",
+	        	   "long": "min_id",
+	        	   "def": "min_id,
+	        	   "desc": "min_id",
 	           },
 	           {
-	        	   short: 'x',
-	        	   long: 'max_id',
-	        	   def: 'max_id',
-	        	   desc: 'max_id',
+	        	   "short": "x",
+	        	   "long": "max_id",
+	        	   "def": "max_id",
+	        	   "desc": "max_id",
 	           },
 	           
 	 ]
