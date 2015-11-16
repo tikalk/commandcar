@@ -88,6 +88,9 @@ Specific info for each command. for example:
  }
 			 
 ```
+# Examples
+
+The best way to learn more about API definition would be to take a look at how we defined the (instagram API)[https://github.com/shaharsol/commandcar/tree/master/apis/instagram] ourselves.
 
 # use command
 
