@@ -14,6 +14,8 @@ var jsonic = require('jsonic');
 var Rsync = require('rsync');
 var os = require('os');
 var npm = require('npm');
+var url = require('url');
+
 /*
  * ENV
  */
@@ -223,7 +225,7 @@ function performRequest(api,command,options,callback){
 	// some api take authorization bearer as headers
 	// some allow auth to pass as params
 	// some require basic auth
-	var url;
+	var theUrl;
 	var form;
 	var path = '';
 	
@@ -242,16 +244,29 @@ function performRequest(api,command,options,callback){
 		
 	}
 	
-	
-	
-	url = currentApi.protocol + '://' + currentApi.hostname;
+//	theUrl = currentApi.protocol + '://' + currentApi.hostname;
 	path = currentCommand.path_template;
 	_.each(currentCommand.options,function(option){
 		path = path.replace('{' + option.long + '}',options[option.long]);
 	});
-	url += path;
+//	theUrl += path;
 	
-//	console.log('url: ' + url);
+	
+	var pathParts = path.split('?');
+	
+	var urlObj = {
+		protocol: currentApi.protocol,
+		hostname: currentApi.hostname,
+		pathname: pathParts[0],
+		search: pathParts[1]
+	}
+	if('port' in currentApi){
+		urlObj['port'] = currentApi.port;
+	}
+	// TBD: dont forget basic auth!
+	
+	theUrl = url.format(urlObj);
+	console.log('url: ' + theUrl);
 	
 	var verb = 'GET';
 	if('verb' in currentCommand){
@@ -302,7 +317,7 @@ function performRequest(api,command,options,callback){
 	
 	
 	var requestOptions = {
-		url: url,
+		url: theUrl,
 		method: verb,
 		headers: headers,
 	}
