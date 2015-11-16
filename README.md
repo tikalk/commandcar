@@ -88,6 +88,11 @@ Specific info for each command. for example:
  }
 			 
 ```
+
+It is worthnoty to pay attention to the following fields:
+* `ret` - given a json response from the API call, you can select which field you want returned and being output. If you ommit this, the entire response body will be sent to output.
+* `options` - this is an array of command line options you want to enable for this command. the long name of each option is the one used for placeholders around other fields, using the `{` and `}` characters.   
+
 # Examples
 
 The best way to learn more about API definition would be to take a look at how we defined the [instagram API](https://github.com/shaharsol/commandcar/tree/master/apis/instagram) ourselves.
