@@ -15,6 +15,7 @@ var Rsync = require('rsync');
 var os = require('os');
 var npm = require('npm');
 var url = require('url');
+var path = require('path');
 
 /*
  * ENV
@@ -22,13 +23,14 @@ var url = require('url');
 //var SCOPE = '@commandcar';
 var SCOPE = '@shaharsol';
 
-var APIS_DIR = __dirname + '/node_modules/' + SCOPE;
+var APIS_DIR = path.join(__dirname,'node_modules',SCOPE);
 console.log('api dir: ' + APIS_DIR);
 /*
  * make sure we have a USE dir
  */
 
-var USE_DIR = os.tmpdir() + 'use';
+var USE_DIR = path.join(os.tmpdir(),'use');
+console.log('use dir: ' + USE_DIR);
 try{
 	fs.mkdirSync(USE_DIR);
 }catch(e){
@@ -200,7 +202,7 @@ function use(api,options,callback){
 		_.each(currentApi.use_options,function(useOption){
 			useOptions[useOption.long] = options[useOption.long];
 		});
-		fs.writeFileSync(USE_DIR + '/' + api + '.json',JSON.stringify(useOptions));
+		fs.writeFileSync(path.join(USE_DIR,api + '.json'),JSON.stringify(useOptions));
 		callback(null);
 	}catch(e){
 		callback(e);
@@ -209,7 +211,7 @@ function use(api,options,callback){
 
 function unuse(api,callback){
 	try{
-		fs.unlinkSync(USE_DIR + '/' + api + '.json');
+		fs.unlinkSync(path.join(USE_DIR,api + '.json'));
 		callback(null);
 	}catch(e){
 		callback(e);
@@ -227,7 +229,7 @@ function performRequest(api,command,options,callback){
 	// some require basic auth
 	var theUrl;
 	var form;
-	var path = '';
+	var pathStr = '';
 	
 	// TBD add port (i.e. default 80 but surely not always)
 	// TBD consider passing the entire api and command objects, and not only thier names, 
@@ -236,7 +238,7 @@ function performRequest(api,command,options,callback){
 	var currentCommand = _.find(currentApi.commands,function(item){return item.name == command;});
 	
 	try{
-		useOptions = jsonic(fs.readFileSync(USE_DIR + '/' + api + '.json', 'utf8'));
+		useOptions = jsonic(fs.readFileSync(path.join(USE_DIR,api + '.json'), 'utf8'));
 		_.each(useOptions,function(value,key){
 			options[key] = value;
 		})
@@ -245,14 +247,14 @@ function performRequest(api,command,options,callback){
 	}
 	
 //	theUrl = currentApi.protocol + '://' + currentApi.hostname;
-	path = currentCommand.path_template;
+	pathStr = currentCommand.path_template;
 	_.each(currentCommand.options,function(option){
-		path = path.replace('{' + option.long + '}',(typeof options[option.long] == 'undefined' ? '' : options[option.long]));
+		pathStr = pathStr.replace('{' + option.long + '}',(typeof options[option.long] == 'undefined' ? '' : options[option.long]));
 	});
 //	theUrl += path;
 	
 	
-	var pathParts = path.split('?');
+	var pathParts = pathStr.split('?');
 	
 	var urlObj = {
 		protocol: currentApi.protocol,
@@ -365,12 +367,12 @@ function buildDatabaseFromFileSystem(){
 //				console.log('file: ' + util.inspect(file));
 				if(fs.lstatSync(APIS_DIR + '/' + file).isDirectory()){
 //					console.log('file: ' + __dirname + '/apis/' + file + ' is a directory');
-					api = jsonic(fs.readFileSync(APIS_DIR + '/' + file + '/api.json', 'utf8'));
+					api = jsonic(fs.readFileSync(path.join(APIS_DIR,file,'api.json'), 'utf8'));
 					api['name'] = file;
 					api['commands'] = [];
-					var commands = fs.readdirSync(APIS_DIR + '/' + file + '/commands');
+					var commands = fs.readdirSync(path.join(APIS_DIR,file,'commands'));
 					_.each(commands,function(commandFile){
-						var command = jsonic(fs.readFileSync(APIS_DIR + '/' + file + '/commands/' + commandFile, 'utf8'));
+						var command = jsonic(fs.readFileSync(path.join(APIS_DIR,file,'commands',commandFile), 'utf8'));
 						command['name'] = commandFile.split('.')[0];
 						api.commands.push(command);
 					});
