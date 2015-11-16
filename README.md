@@ -9,7 +9,7 @@ commandcar facebook.like --post_id 123456789 --access_token abcdefghijklmnopqrst
 
 # Installing
 
-use [npm](https://www.npmjs.com/) to install commandcar
+use [npm](https://www.npmjs.com/) to install commandcar.
 
 ```
 sudo npm install commandcar -g
@@ -17,7 +17,9 @@ sudo npm install commandcar -g
 
 # Using commandcar
 
-A fresh commandcar install is a powerful yet empty skeleton. In order to make commandcar usable you first need to `load` or `install` an API definition. Basically, you `load` your own API definitions, and when you `install`, you install an API definition that another generous developer had already defined and pushed to the commandcar repository.
+A fresh commandcar install is a powerful yet empty skeleton. In order to make commandcar usable you first need to `load` or `install` an API definition, and that's how you extend its power. 
+
+Basically, you `load` your own API definitions, and when you `install`, you install an API definition that another generous developer had already defined and pushed to the commandcar repository.
 
 # Installing an API
 
@@ -29,7 +31,7 @@ sudo commandcar install facebook
 
 # Loading an API
 
-Define an API (see next section) and load it like this:
+Define an API in a folder somewhere on your local machine (see next section) and load it like this:
 
 ```
 commandcar load ~/dev/commandcar/apis/my_api
@@ -37,9 +39,9 @@ commandcar load ~/dev/commandcar/apis/my_api
 
 # API Definition
 
-An API Definition is a file system directory. The name of the directory describes the API. In the root of the directory resides an `api.json` manifest file.
+An API Definition is a file system directory. The name of the directory gives the API its name. In the root of the directory resides an `api.json` manifest file.
 
-API commands are described each in its own json file under the `commands` sub directory. So essentially, it should all look something like:
+API commands are described each in their own json file under the `commands` sub directory. So essentially, it should all look something like:
 
 ```
 +- Facebook
@@ -52,7 +54,7 @@ API commands are described each in its own json file under the `commands` sub di
 
 # api.json
 
-The file should contain the most basic info in order to generate API calls to the API. for example:
+The file should contain the paramteres that are applied to all (or at least, most) commands in the API. for example:
 
 ```
 {
