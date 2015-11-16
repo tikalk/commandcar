@@ -44,7 +44,7 @@ An API Definition is a file system directory. The name of the directory gives th
 API commands are described each in their own json file under the `commands` sub directory. So essentially, it should all look something like:
 
 ```
-+- Facebook
++- facebook
    +- api.json
    +- commands
       +- get.json
