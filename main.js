@@ -233,6 +233,17 @@ function performRequest(api,command,options,callback){
 	var currentApi = _.find(database,function(item){return item.name == api;});
 	var currentCommand = _.find(currentApi.commands,function(item){return item.name == command;});
 	
+	try{
+		useOptions = jsonic(fs.readFileSync(USE_DIR + '/' + api + '.json', 'utf8'));
+		_.each(useOptions,function(value,key){
+			options[key] = value;
+		})
+	}catch(e){
+		
+	}
+	
+	
+	
 	url = currentApi.protocol + '://' + currentApi.hostname;
 	path = currentCommand.path_template;
 	_.each(currentCommand.options,function(option){
