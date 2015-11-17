@@ -396,7 +396,7 @@ function buildDatabaseFromFileSystem(){
 	}
 	
 //	console.log('database: ' + util.inspect(database,{depth:8}));
-	fs.writeFileSync(os.tmpdir() + 'cache.json',JSON.stringify(database));
+	fs.writeFileSync(path.join(os.tmpdir(),'cache.json'),JSON.stringify(database));
 	return database;
 }
 
@@ -404,7 +404,7 @@ function loadDatabaseFromCache(){
 	var cache = null;
 	try{
 		console.log('reading cache from: ' + os.tmpdir() + 'cache.json');
-		cache = fs.readFileSync(os.tmpdir() + 'cache.json', 'utf-8');
+		cache = fs.readFileSync(path.join(os.tmpdir(),'cache.json'), 'utf-8');
 		cache = jsonic(cache);
 	}catch(e){
 		
