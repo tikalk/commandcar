@@ -26,7 +26,7 @@ Basically, you `load` your own API definitions, and when you `install`, you inst
 Search for the API you wish to install by browsing our [apis repository](https://github.com/shaharsol/commandcar/tree/master/apis), and then install it like this:
 
 ```
-sudo commandcar install facebook
+sudo commandcar install --api facebook
 ```
 
 # Loading an API

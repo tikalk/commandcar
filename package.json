@@ -1,6 +1,6 @@
 {
   "name": "commandcar",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "description": "cURL on steroids for working with any API from the commandline",
   "repository": {
   	"type": "git",

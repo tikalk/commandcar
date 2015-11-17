@@ -365,16 +365,18 @@ function buildDatabaseFromFileSystem(){
 			var files = fs.readdirSync(APIS_DIR);
 			_.each(files,function(file){
 //				console.log('file: ' + util.inspect(file));
-				if(fs.lstatSync(APIS_DIR + '/' + file).isDirectory()){
+				if(fs.lstatSync(path.join(APIS_DIR,file)).isDirectory()){
 //					console.log('file: ' + __dirname + '/apis/' + file + ' is a directory');
 					api = jsonic(fs.readFileSync(path.join(APIS_DIR,file,'api.json'), 'utf8'));
 					api['name'] = file;
+					console.log('found API: ' + file);
 					api['commands'] = [];
 					var commands = fs.readdirSync(path.join(APIS_DIR,file,'commands'));
 					_.each(commands,function(commandFile){
 						var command = jsonic(fs.readFileSync(path.join(APIS_DIR,file,'commands',commandFile), 'utf8'));
 						command['name'] = commandFile.split('.')[0];
 						api.commands.push(command);
+						console.log('added command ' + command['name'] + ' to api ' + api['name']);
 					});
 					if('use_options' in api){
 						var useCommand = {
@@ -390,9 +392,11 @@ function buildDatabaseFromFileSystem(){
 					database.push(api);
 				}
 			});
+		}else{
+			console.log('APIS_DIR doesnt seem to be a directory...');
 		}	
 	}catch(e){
-		
+		console.log('error building db: ' + e);
 	}
 	
 //	console.log('database: ' + util.inspect(database,{depth:8}));
@@ -403,7 +407,7 @@ function buildDatabaseFromFileSystem(){
 function loadDatabaseFromCache(){
 	var cache = null;
 	try{
-		console.log('reading cache from: ' + os.tmpdir() + 'cache.json');
+		console.log('reading cache from: ' + path.join(os.tmpdir(),'cache.json'));
 		cache = fs.readFileSync(path.join(os.tmpdir(),'cache.json'), 'utf-8');
 		cache = jsonic(cache);
 	}catch(e){

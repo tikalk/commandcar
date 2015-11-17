@@ -5,19 +5,19 @@
 	        	   "short": "a",
 	        	   "long": "access_token",
 	        	   "def": "access token",
-	        	   ""desc"": "access_token",
+	        	   "desc": "access_token",
 	           },
 	           {
 	        	   "short": c",
 	        	   "long": "count",
 	        	   "def": "count",
-	        	   ""desc"": "count",
+	        	   "desc": "count",
 	           },
 	           {
 	        	   "short": "q",
 	        	   "long": "query",
 	        	   "def": "query",
-	        	   ""desc"": "query",
+	        	   "desc": "query",
 	           },
 	           
 	 ]
