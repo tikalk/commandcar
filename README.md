@@ -116,7 +116,7 @@ You can use the `headers` element very similarly, for example to pass an oauth t
 
 # use command
 
-use is a special command that is added to any API and doesn't need to be defined. If you're doing a lot of API calls with identical parameters, for instance an access_token, then you can `use` them instead, and then they will be included in any following call to the API, until you `unuse` it or untull you `use` another parameter value.
+use is a special command that is added to any API that has `use_options` in its `api.json` file and doesn't need to be defined (example can be seen in [instagram's api.json](https://github.com/tikalk/commandcar/blob/master/apis/instagram/api.json)). If you're doing a lot of API calls with identical parameters, for instance an access_token, then you can `use` them instead, and then they will be included in any following call to the API, until you `unuse` it or untull you `use` another parameter value.
 
 for example:
 
