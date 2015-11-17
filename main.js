@@ -133,7 +133,7 @@ program
 		    if(error){
 		    	console.log(code + ' : ' + error);
 		    }else{
-		    	buildDatabaseFromFileSystem();
+		    	database = buildDatabaseFromFileSystem();
 		    }
 		});
 	});
@@ -151,7 +151,7 @@ program
 					if(er){
 						console.log('npm error: ' + er);
 					}
-					buildDatabaseFromFileSystem();
+					database = buildDatabaseFromFileSystem();
 				});
 				npm.on("log", function (message) {
 					console.log(message);
