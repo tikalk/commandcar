@@ -101,7 +101,16 @@ It is noteworthy to pay attention to the following fields:
 
 # Examples
 
-The best way to learn more about API definition would be to take a look at how we defined the [instagram API](https://github.com/shaharsol/commandcar/tree/master/apis/instagram) ourselves.
+The best way to learn more about API definition would be to take a look at how we defined some basic APIs ourselves. 
+The [instagram API](https://github.com/shaharsol/commandcar/tree/master/apis/instagram) is given with the users endpoint complete.
+The [Google Accounts API](https://github.com/shaharsol/commandcar/tree/master/apis/google_accounts) demonstrates how to use the `form` element.
+You can use the `headers` element very similarly, for example to pass an oauth token
+```
+"headers": {
+	"Authorization": "Bearer {access_token}"
+	"Content-Type": "application/json"
+}
+```
 
 # use command
 
