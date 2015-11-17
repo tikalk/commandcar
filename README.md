@@ -29,6 +29,8 @@ Search for the API you wish to install by browsing our [apis repository](https:/
 sudo commandcar install --api facebook
 ```
 
+Note: Facebook is used as an example API throughout this doc, though we didn't practically implement it. If you wish to do so, please do! We're waiting for your pull requests ;-) 
+
 # Loading an API
 
 Define an API in a folder somewhere on your local machine (see next section) and load it like this:

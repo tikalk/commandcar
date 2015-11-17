@@ -24,13 +24,13 @@ var path = require('path');
 var SCOPE = '@commandcar';
 
 var APIS_DIR = path.join(__dirname,'node_modules',SCOPE);
-console.log('api dir: ' + APIS_DIR);
+//console.log('api dir: ' + APIS_DIR);
 /*
  * make sure we have a USE dir
  */
 
-var USE_DIR = path.join(os.tmpdir(),'use');
-console.log('use dir: ' + USE_DIR);
+var USE_DIR = path.join(os.tmpdir(),'commandcar-use');
+//console.log('use dir: ' + USE_DIR);
 try{
 	fs.mkdirSync(USE_DIR);
 }catch(e){
@@ -268,7 +268,7 @@ function performRequest(api,command,options,callback){
 	// TBD: dont forget basic auth!
 	
 	theUrl = url.format(urlObj);
-	console.log('url: ' + theUrl);
+//	console.log('url: ' + theUrl);
 	
 	var verb = 'GET';
 	if('verb' in currentCommand){
@@ -299,7 +299,7 @@ function performRequest(api,command,options,callback){
 	
 	var form = {};
 	
-	console.log('is form: ' + (form? 'y':'n'))
+//	console.log('is form: ' + (form? 'y':'n'))
 	if('form' in currentCommand){
 		_.each(currentCommand.form,function(value,key){
 			if(us(value).startsWith('{') && us(value).endsWith('}')){
@@ -309,7 +309,7 @@ function performRequest(api,command,options,callback){
 			form[key] = value;
 		});
 	}
-	console.log('form: ' + util.inspect(form));
+//	console.log('form: ' + util.inspect(form));
 
 	
 	if('oauth_headers_access_token_option_name' in currentApi){
@@ -331,7 +331,7 @@ function performRequest(api,command,options,callback){
 		requestOptions['form'] = form;
 	}
 	
-	console.log('requestOptions: ' + util.inspect(requestOptions));
+//	console.log('requestOptions: ' + util.inspect(requestOptions));
 	
 	request(requestOptions,function(error,response,body){
 		if(error){
@@ -369,14 +369,14 @@ function buildDatabaseFromFileSystem(){
 //					console.log('file: ' + __dirname + '/apis/' + file + ' is a directory');
 					api = jsonic(fs.readFileSync(path.join(APIS_DIR,file,'api.json'), 'utf8'));
 					api['name'] = file;
-					console.log('found API: ' + file);
+//					console.log('found API: ' + file);
 					api['commands'] = [];
 					var commands = fs.readdirSync(path.join(APIS_DIR,file,'commands'));
 					_.each(commands,function(commandFile){
 						var command = jsonic(fs.readFileSync(path.join(APIS_DIR,file,'commands',commandFile), 'utf8'));
 						command['name'] = commandFile.split('.')[0];
 						api.commands.push(command);
-						console.log('added command ' + command['name'] + ' to api ' + api['name']);
+//						console.log('added command ' + command['name'] + ' to api ' + api['name']);
 					});
 					if('use_options' in api){
 						var useCommand = {
@@ -400,15 +400,15 @@ function buildDatabaseFromFileSystem(){
 	}
 	
 //	console.log('database: ' + util.inspect(database,{depth:8}));
-	fs.writeFileSync(path.join(os.tmpdir(),'cache.json'),JSON.stringify(database));
+	fs.writeFileSync(path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
 	return database;
 }
 
 function loadDatabaseFromCache(){
 	var cache = null;
 	try{
-		console.log('reading cache from: ' + path.join(os.tmpdir(),'cache.json'));
-		cache = fs.readFileSync(path.join(os.tmpdir(),'cache.json'), 'utf-8');
+//		console.log('reading cache from: ' + path.join(os.tmpdir(),'commandcar-cache.json'));
+		cache = fs.readFileSync(path.join(os.tmpdir(),'commandcar-cache.json'), 'utf-8');
 		cache = jsonic(cache);
 	}catch(e){
 		
