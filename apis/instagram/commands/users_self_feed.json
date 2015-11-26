@@ -14,7 +14,7 @@
 	        	   "desc": "access_token",
 	           },
 	           {
-	        	   "short": c",
+	        	   "short": "c",
 	        	   "long": "count",
 	        	   "def": "count",
 	        	   "desc": "count",
