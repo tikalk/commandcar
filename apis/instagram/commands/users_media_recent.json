@@ -22,7 +22,7 @@
 	           {
 	        	   "short": "n",
 	        	   "long": "min_id",
-	        	   "def": "min_id,
+	        	   "def": "min_id",
 	        	   "desc": "min_id",
 	           },
 	           {
