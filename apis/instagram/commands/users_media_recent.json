@@ -34,7 +34,7 @@
 	           {
 	        	   "short": "t",
 	        	   "long": "min_timestamp",
-	        	   "def": "min_timestamp,
+	        	   "def": "min_timestamp",
 	        	   "desc": "min_timestamp",
 	           },
 	           {
