@@ -5,7 +5,7 @@
 	        	   "short": "u",
 	        	   "long": "user_id",
 	        	   "def": "user id",
-	        	   "desc": "facebook user id",
+	        	   "desc": "instagram user id",
 	           },
 	           {
 	        	   "short": "a",
