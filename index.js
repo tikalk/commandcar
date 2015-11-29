@@ -115,6 +115,15 @@ _.each(database,function(apiContent,api){
 			_.each(verbContent.parameters,function(parameter){
 				theCommand.option('--' + parameter.name,parameter.description);
 			});
+			// TBD
+			/*
+			 * figure out if there is security key, and it has api_key,
+			 * and then figure out whats the name of the api_key 
+			 * and register it as an option
+			 * 
+			 * also, add use and unuse with this particular key!
+			 */
+			
 			theCommand.action(function(options){
 	//			console.log('should call ' + api.name + '_' + command.name + ' with uid ')
 				performCommand(api,commandName,options,function(err,ret){
