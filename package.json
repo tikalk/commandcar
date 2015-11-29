@@ -17,6 +17,7 @@
     "commander": "*",
     "rsync": "*",
     "npm": "*",
+    "yamljs": "*",
     "request": "*"
   }
 }
