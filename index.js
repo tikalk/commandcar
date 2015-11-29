@@ -123,7 +123,14 @@ _.each(database,function(apiContent,api){
 			 * 
 			 * also, add use and unuse with this particular key!
 			 */
-			
+			if('security' in verbContent){
+				var apiKey = _.find(verbContent.security,function(item){
+					return 'api_key' in item;
+				})
+				if(apiKey){
+					theCommand.option('--' + apiContent.securityDefinitions.api_key.name,apiContent.securityDefinitions.api_key.name);
+				}
+			}
 			theCommand.action(function(options){
 	//			console.log('should call ' + api.name + '_' + command.name + ' with uid ')
 				performCommand(api,commandName,options,function(err,ret){
