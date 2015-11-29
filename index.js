@@ -111,6 +111,21 @@ _.each(database,function(apiContent,api){
 		_.each(pathContent,function(verbContent,verb){
 			commandName = api + '.' + verb + '_' +  rejoinedParts;
 			console.log('found command: ' + commandName);
+			var theCommand = program.command(commandName);
+			_.each(verbContent.parameters,function(parameter){
+				theCommand.option('--' + parameter.name,parameter.description);
+			});
+			theCommand.action(function(options){
+	//			console.log('should call ' + api.name + '_' + command.name + ' with uid ')
+				performCommand(api,commandName,options,function(err,ret){
+					if(err){
+						console.log('error: ' + err);
+					}else{
+						console.log(ret);
+					}
+				});
+			})
+			
 		})
 	});
 	
