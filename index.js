@@ -117,9 +117,6 @@ _.each(database,function(apiContent,api){
 			});
 			// TBD
 			/*
-			 * figure out if there is security key, and it has api_key,
-			 * and then figure out whats the name of the api_key 
-			 * and register it as an option
 			 * 
 			 * also, add use and unuse with this particular key!
 			 */
@@ -133,7 +130,8 @@ _.each(database,function(apiContent,api){
 			}
 			theCommand.action(function(options){
 	//			console.log('should call ' + api.name + '_' + command.name + ' with uid ')
-				performCommand(api,commandName,options,function(err,ret){
+//				performCommand(api,commandName,options,function(err,ret){
+				performCommand(api,path,verb,options,function(err,ret){
 					if(err){
 						console.log('error: ' + err);
 					}else{
@@ -145,25 +143,6 @@ _.each(database,function(apiContent,api){
 		})
 	});
 	
-//	_.each(api,function(command){
-////		console.log('adding command: ' + api.name + '_' + command.name);	
-//		var theCommand = program.command(api.name + '.' + command.name);
-////		var theCommand = program.command(api.name + ' <' + command.name + '>');
-//		_.each(command.options,function(option){
-////			console.log('adding option: ' + '-' + option.short + ', --' + option.long + ' [' + option.def + ']');
-//			theCommand.option('-' + option.short + ', --' + option.long + ' [' + option.def + ']',option.desc);
-//		});
-//		theCommand.action(function(options){
-////			console.log('should call ' + api.name + '_' + command.name + ' with uid ')
-//			performCommand(api.name,command.name,options,function(err,ret){
-//				if(err){
-//					console.log('error: ' + err);
-//				}else{
-//					console.log(ret);
-//				}
-//			});
-//		})
-//	})
 	
 })
 
@@ -229,7 +208,7 @@ program
 
 program.parse(process.argv);
 
-function performCommand(api,command,options,callback){
+function performCommand(api,path,verb,options,callback){
 	switch(command){
 	case 'use':
 		use(api,options,callback);
@@ -238,7 +217,7 @@ function performCommand(api,command,options,callback){
 		unuse(api,callback);
 		break;
 	default:
-		performRequest(api,command,options,callback);
+		performRequest(api,path,verb,options,callback);
 	}
 }
 
@@ -265,7 +244,7 @@ function unuse(api,callback){
 	}
 }
 
-function performRequest(api,command,options,callback){
+function performRequest(api,path,verb,options,callback){
 	
 	// is the host known? or is passed as -h --host?
 	// facebook host is known: graph.facebook.com
@@ -281,8 +260,6 @@ function performRequest(api,command,options,callback){
 	// TBD add port (i.e. default 80 but surely not always)
 	// TBD consider passing the entire api and command objects, and not only thier names, 
 	// hence not having to find them...
-	var currentApi = _.find(database,function(item){return item.name == api;});
-	var currentCommand = _.find(currentApi.commands,function(item){return item.name == command;});
 	
 	try{
 		useOptions = jsonic(fs.readFileSync(path.join(USE_DIR,api + '.json'), 'utf8'));
