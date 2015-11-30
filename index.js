@@ -250,8 +250,8 @@ function performRequest(api,path,verb,options,callback){
 	
 	var protocol = database[api].schemes[0];
 	console.log('protocil: ' + protocol);
-	var hostname = database[api].host;
-	console.log('hostname: ' + hostname);
+	var host = database[api].host;
+	console.log('host: ' + host);
 
 	
 	
@@ -276,7 +276,7 @@ function performRequest(api,path,verb,options,callback){
 	
 //	console.log(util.inspect(options));
 	var query = {};
-	console.log('options: ' + util.inspect(options));
+//	console.log('options: ' + util.inspect(options));
 	_.each(database[api].paths[path][verb].parameters,function(parameter){
 		console.log('parameter name: ' + parameter.name);
 		console.log('parameter name cameled: ' + normalizeParameterName(parameter.name));
@@ -286,81 +286,42 @@ function performRequest(api,path,verb,options,callback){
 			query[parameter.name] = options[normalizeParameterName(parameter.name)];
 		}
 	}); 
+	
+	// do we have to add security params to query?
+	if('security' in database[api].paths[path][verb]){
+		var apiKey = _.find(database[api].paths[path][verb].security,function(item){
+			return 'api_key' in item;
+		})
+		console.log('api def: ' + util.inspect(database[api].securityDefinitions.api_key))
+		if(database[api].securityDefinitions.api_key['in'] == 'query'){
+			query[database[api].securityDefinitions.api_key.name] = options[normalizeParameterName(database[api].securityDefinitions.api_key.name)]
+		}
+	}
+	
 	var queryString = querystring.stringify(query);
 	
 console.log('querystring: ' + queryString);
 	
 	var urlObj = {
-		protocol: currentApi.protocol,
-		hostname: currentApi.hostname,
+		protocol: protocol,
+		host: host,
 		pathname: pathStr,
-		search: queryString
-	}
-	if('port' in currentApi){
-		urlObj['port'] = currentApi.port;
+		query: query
 	}
 	// TBD: dont forget basic auth!
 	
 	theUrl = url.format(urlObj);
-//	console.log('url: ' + theUrl);
-	
-	var verb = 'GET';
-	if('verb' in currentCommand){
-		verb = currentCommand.verb;
-	}
-	
-	var headers = {};
-	if('headers' in currentApi){
-		headers = currentApi.headers;
-	}
-	if('headers' in currentCommand){
-		_.each(currentCommand.headers,function(value,key){
-			if(us(value).startsWith('{') && us(value).endsWith('}')){
-				var optionName = value.substr(1,value.length - 2);
-				value = options[optionName];
-			}
-			headers[key] = value;
-		});
-	}
-	
-	var body = false;
-	if('body' in currentCommand){
-		var optionName = currentCommand.body.substr(1,currentCommand.body.length - 2);
-		body = options[optionName]
+	console.log('url: ' + theUrl);
 		
-	}
-	
-	
+	var headers = {};
 	var form = {};
-	
-//	console.log('is form: ' + (form? 'y':'n'))
-	if('form' in currentCommand){
-		_.each(currentCommand.form,function(value,key){
-			if(us(value).startsWith('{') && us(value).endsWith('}')){
-				var optionName = value.substr(1,value.length - 2);
-				value = options[optionName];
-			}
-			form[key] = value;
-		});
-	}
-//	console.log('form: ' + util.inspect(form));
-
-	
-	if('oauth_headers_access_token_option_name' in currentApi){
-		headers['Authorization'] = 'Bearer ' + options[currentApi.oauth_headers_access_token_option_name];
-	}
-	
-	
 	
 	var requestOptions = {
 		url: theUrl,
-		method: verb,
+		method: verb.toUpperCase(),
 		headers: headers,
 	}
 	
-	if(body){
-		requestOptions['body'] = body;
-	}
 	if(!_.isEmpty(form)){
 		requestOptions['form'] = form;
 	}
@@ -374,7 +335,7 @@ console.log('querystring: ' + queryString);
 //			console.log('status code: ' + response.statusCode);
 			callback(body);
 		}else{
-//			console.log('body is: ' + util.inspect(body));
+			console.log('body is: ' + util.inspect(body));
 			var ret;
 			if('ret' in currentCommand){
 				var data = JSON.parse(body);
