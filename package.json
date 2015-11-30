@@ -18,6 +18,7 @@
     "rsync": "*",
     "npm": "*",
     "yamljs": "*",
+    "chance": "*",
     "request": "*"
   }
 }

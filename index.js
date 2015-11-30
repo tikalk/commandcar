@@ -17,7 +17,8 @@ var npm = require('npm');
 var url = require('url');
 var path = require('path');
 var yaml = require('yamljs');
-
+var Chance = require('chance');
+var chance = new Chance();
 /*
  * ENV
  */
@@ -50,51 +51,6 @@ if(!database){
 
 
 
-//var database = [
-//		{
-//			name: 'facebook',
-//			protocol: 'https',
-//			host: 'graph.facebook.com',
-//			commands: [{
-//				 name: 'get',
-//				 path_template: '/{uid}?fields=name&access_token={access_token}',
-//				 ret: 'name',
-//				 options: [
-//				           {
-//				        	   short: 'u',
-//				        	   long: 'uid',
-//				        	   def: 'user id',
-//				        	   desc: 'facebook user id',
-//				           },
-//				           {
-//				        	   short: 'a',
-//				        	   long: 'access_token',
-//				        	   def: 'access token',
-//				        	   desc: 'access_token',
-//				           },
-//				           
-//				 ]
-//			 }]
-//		},
-//		{
-//			name: 'dropbox',
-//			protocol: 'https',
-//			host: 'api.dropbox.com',
-//			commands: [{
-//				 name: 'quota_info',
-//				 path_template: '/1/account/info?access_token={access_token}',
-//				 ret: 'quota_info',
-//				 options: [
-//				           {
-//				        	   short: 'a',
-//				        	   long: 'access_token',
-//				        	   def: 'access token',
-//				        	   desc: 'access_token',
-//				           }
-//				 ]
-//			}]
-//		}
-//];
 
 _.each(database,function(apiContent,api){
 	console.log('processing commands for ' + api);
@@ -110,28 +66,44 @@ _.each(database,function(apiContent,api){
 		var rejoinedParts = includedParts.join('_').replace('-','_');
 		_.each(pathContent,function(verbContent,verb){
 			commandName = api + '.' + verb + '_' +  rejoinedParts;
+			var shorts = [];
 			console.log('found command: ' + commandName);
 			var theCommand = program.command(commandName);
+			
+			// always start with the api key in order to keep its short name persistent over all the api methods
+			if('security' in verbContent){
+				var apiKey = _.find(verbContent.security,function(item){
+					return 'api_key' in item;
+				})
+				if(apiKey){
+					var short = getShort(apiContent.securityDefinitions.api_key.name,shorts);
+					shorts.push(short);
+					theCommand.option('-' + short + ', --' + apiContent.securityDefinitions.api_key.name + ' <' + apiContent.securityDefinitions.api_key.name + '>',apiContent.securityDefinitions.api_key.name);
+				}
+			}
+			
+			
 			_.each(verbContent.parameters,function(parameter){
-				theCommand.option('--' + parameter.name,parameter.description);
+				var short = getShort(parameter.name,shorts);
+				shorts.push(short);
+				
+				var leftTag = ' [';
+				var rightTag = ']';
+				if(parameter.required){
+					leftTag = ' <';
+					rightTag = '>';
+				}
+				
+				theCommand.option('-' + short + ', --' + parameter.name + leftTag + parameter.name + rightTag,parameter.description);
 			});
 			// TBD
 			/*
 			 * 
 			 * also, add use and unuse with this particular key!
 			 */
-			if('security' in verbContent){
-				var apiKey = _.find(verbContent.security,function(item){
-					return 'api_key' in item;
-				})
-				if(apiKey){
-					theCommand.option('--' + apiContent.securityDefinitions.api_key.name,apiContent.securityDefinitions.api_key.name);
-				}
-			}
-			theCommand.action(function(options){
-	//			console.log('should call ' + api.name + '_' + command.name + ' with uid ')
-//				performCommand(api,commandName,options,function(err,ret){
-//				performCommand(api,path,verb,options,function(err,ret){
+			
+			theCommand.action(function(options,o1,o2){
+				console.log('program args: ' + util.inspect(program.args));
 				performRequest(api,path,verb,options,function(err,ret){
 					if(err){
 						console.log('error: ' + err);
@@ -293,8 +265,8 @@ function performRequest(api,path,verb,options,callback){
 		if(us(pathPart).startsWith('{') && us(pathPart).endsWith('}')){
 			console.log('found a param');
 			console.log('param name: ' + pathPart.substr(1,pathPart.length-2));
-			console.log('param value: ' + options[pathPart.substr(1,pathPart.length-2)]);
-			pathPart = options[pathPart.substr(1,pathPart.length-2)];
+			console.log('param value: ' + program[pathPart.substr(1,pathPart.length-2)]);
+			pathPart = program[pathPart.substr(1,pathPart.length-2)];
 		}
 		newParts.push(pathPart);
 	});
@@ -452,4 +424,24 @@ function loadDatabaseFromCache(){
 		
 	}
 	return cache;
+}
+
+function getShort(name,shorts){
+	var test = name.charAt(0).toLowerCase();
+	if(_.contains(shorts,test)){
+		test = name.charAt(0).toUpperCase();
+		if(_.contains(shorts,test)){
+			test = name.charAt(name.length -1).toLowerCase();
+			if(_.contains(shorts,test)){
+				test = name.charAt(name.length -1).toUpperCase();
+				if(_.contains(shorts,test)){
+					test = chance.character({pool:'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'});
+					while(_.contains(shorts,test)){
+						test = chance.character({pool:'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'});
+					}
+				}
+			}
+		}
+	}
+	return test;
 }
