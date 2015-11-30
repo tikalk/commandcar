@@ -19,6 +19,8 @@ var path = require('path');
 var yaml = require('yamljs');
 var Chance = require('chance');
 var chance = new Chance();
+var camelcase = require('camelcase');
+var querystring = require('querystring');
 /*
  * ENV
  */
@@ -103,7 +105,6 @@ _.each(database,function(apiContent,api){
 			 */
 			
 			theCommand.action(function(options,o1,o2){
-				console.log('program args: ' + util.inspect(program.args));
 				performRequest(api,path,verb,options,function(err,ret){
 					if(err){
 						console.log('error: ' + err);
@@ -219,7 +220,6 @@ function unuse(api,callback){
 
 function performRequest(api,path,verb,options,callback){
 	
-	console.log('options: ' + util.inspect(options));
 	
 	// is the host known? or is passed as -h --host?
 	// facebook host is known: graph.facebook.com
@@ -265,27 +265,31 @@ function performRequest(api,path,verb,options,callback){
 		if(us(pathPart).startsWith('{') && us(pathPart).endsWith('}')){
 			console.log('found a param');
 			console.log('param name: ' + pathPart.substr(1,pathPart.length-2));
-			console.log('param value: ' + program[pathPart.substr(1,pathPart.length-2)]);
-			pathPart = program[pathPart.substr(1,pathPart.length-2)];
+			console.log('cameld case: ' + camelcase(pathPart.substr(1,pathPart.length-2)));
+			console.log('param value: ' + options[camelcase(pathPart.substr(1,pathPart.length-2))]);
+			pathPart = options[camelcase(pathPart.substr(1,pathPart.length-2))];
 		}
 		newParts.push(pathPart);
 	});
 	pathStr = newParts.join('/');
 	console.log('pathStr: ' + pathStr);
 	
-	console.log(util.inspect(options));
-
+//	console.log(util.inspect(options));
+	var query = {};
+	_.each(database[api].paths[path][verb].parameters,function(parameter){
+		if(parameter['in'] == 'query'){
+			query[parameter.name] = options[camelcase(parameter.name)];
+		}
+	}); 
+	var queryString = querystring.stringify(query);
 	
-	_.each(currentCommand.options,function(option){
-		pathStr = pathStr.replace('{' + option.long + '}',(typeof options[option.long] == 'undefined' ? '' : options[option.long]));
-	});
-//	theUrl += path;
+console.log('querystring: ' + queryString);
 	
 	var urlObj = {
 		protocol: currentApi.protocol,
 		hostname: currentApi.hostname,
-		pathname: pathParts[0],
-		search: pathParts[1]
+		pathname: pathStr,
+		search: queryString
 	}
 	if('port' in currentApi){
 		urlObj['port'] = currentApi.port;
@@ -445,3 +449,4 @@ function getShort(name,shorts){
 	}
 	return test;
 }
+

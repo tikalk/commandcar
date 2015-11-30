@@ -19,6 +19,7 @@
     "npm": "*",
     "yamljs": "*",
     "chance": "*",
+    "camelcase": "*",
     "request": "*"
   }
 }
