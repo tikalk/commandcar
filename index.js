@@ -265,9 +265,9 @@ function performRequest(api,path,verb,options,callback){
 		if(us(pathPart).startsWith('{') && us(pathPart).endsWith('}')){
 			console.log('found a param');
 			console.log('param name: ' + pathPart.substr(1,pathPart.length-2));
-			console.log('cameld case: ' + camelcase(pathPart.substr(1,pathPart.length-2)));
-			console.log('param value: ' + options[camelcase(pathPart.substr(1,pathPart.length-2))]);
-			pathPart = options[camelcase(pathPart.substr(1,pathPart.length-2))];
+			console.log('cameld case: ' + normalizeParameterName(pathPart.substr(1,pathPart.length-2)));
+			console.log('param value: ' + options[normalizeParameterName(pathPart.substr(1,pathPart.length-2))]);
+			pathPart = options[normalizeParameterName(pathPart.substr(1,pathPart.length-2))];
 		}
 		newParts.push(pathPart);
 	});
@@ -276,9 +276,14 @@ function performRequest(api,path,verb,options,callback){
 	
 //	console.log(util.inspect(options));
 	var query = {};
+	console.log('options: ' + util.inspect(options));
 	_.each(database[api].paths[path][verb].parameters,function(parameter){
+		console.log('parameter name: ' + parameter.name);
+		console.log('parameter name cameled: ' + normalizeParameterName(parameter.name));
+		console.log('parameter value: ' + options[normalizeParameterName(parameter.name)]);
+		
 		if(parameter['in'] == 'query'){
-			query[parameter.name] = options[camelcase(parameter.name)];
+			query[parameter.name] = options[normalizeParameterName(parameter.name)];
 		}
 	}); 
 	var queryString = querystring.stringify(query);
@@ -450,3 +455,12 @@ function getShort(name,shorts){
 	return test;
 }
 
+function normalizeParameterName(name){
+	var parts = name.split('-');
+	var newParts = [];
+	newParts.push(parts[0]);
+	for(var i=1;i<parts.length;i++){
+		newParts.push(parts[i].charAt(0).toUpperCase() + parts[i].slice(1));
+	}
+	return newParts.join('');
+}
