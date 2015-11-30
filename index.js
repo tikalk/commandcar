@@ -131,7 +131,8 @@ _.each(database,function(apiContent,api){
 			theCommand.action(function(options){
 	//			console.log('should call ' + api.name + '_' + command.name + ' with uid ')
 //				performCommand(api,commandName,options,function(err,ret){
-				performCommand(api,path,verb,options,function(err,ret){
+//				performCommand(api,path,verb,options,function(err,ret){
+				performRequest(api,path,verb,options,function(err,ret){
 					if(err){
 						console.log('error: ' + err);
 					}else{
@@ -246,6 +247,8 @@ function unuse(api,callback){
 
 function performRequest(api,path,verb,options,callback){
 	
+	console.log('options: ' + util.inspect(options));
+	
 	// is the host known? or is passed as -h --host?
 	// facebook host is known: graph.facebook.com
 	// gradle host is always param: 192.8.9.10
@@ -261,24 +264,50 @@ function performRequest(api,path,verb,options,callback){
 	// TBD consider passing the entire api and command objects, and not only thier names, 
 	// hence not having to find them...
 	
-	try{
-		useOptions = jsonic(fs.readFileSync(path.join(USE_DIR,api + '.json'), 'utf8'));
-		_.each(useOptions,function(value,key){
-			options[key] = value;
-		})
-	}catch(e){
-		
-	}
+//	try{
+//		useOptions = jsonic(fs.readFileSync(path.join(USE_DIR,api + '.json'), 'utf8'));
+//		_.each(useOptions,function(value,key){
+//			options[key] = value;
+//		})
+//	}catch(e){
+//		
+//	}
+	
+	
+	
+	
+	var protocol = database[api].schemes[0];
+	console.log('protocil: ' + protocol);
+	var hostname = database[api].host;
+	console.log('hostname: ' + hostname);
+
+	
 	
 //	theUrl = currentApi.protocol + '://' + currentApi.hostname;
-	pathStr = currentCommand.path_template;
+	pathStr = database[api].basePath + path
+	console.log('pathStr: ' + pathStr);
+
+	var pathParts = pathStr.split('/');
+	var newParts = [];
+	_.each(pathParts,function(pathPart){
+		if(us(pathPart).startsWith('{') && us(pathPart).endsWith('}')){
+			console.log('found a param');
+			console.log('param name: ' + pathPart.substr(1,pathPart.length-2));
+			console.log('param value: ' + options[pathPart.substr(1,pathPart.length-2)]);
+			pathPart = options[pathPart.substr(1,pathPart.length-2)];
+		}
+		newParts.push(pathPart);
+	});
+	pathStr = newParts.join('/');
+	console.log('pathStr: ' + pathStr);
+	
+	console.log(util.inspect(options));
+
+	
 	_.each(currentCommand.options,function(option){
 		pathStr = pathStr.replace('{' + option.long + '}',(typeof options[option.long] == 'undefined' ? '' : options[option.long]));
 	});
 //	theUrl += path;
-	
-	
-	var pathParts = pathStr.split('?');
 	
 	var urlObj = {
 		protocol: currentApi.protocol,
