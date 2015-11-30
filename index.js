@@ -328,6 +328,15 @@ console.log('querystring: ' + queryString);
 	
 //	console.log('requestOptions: ' + util.inspect(requestOptions));
 	
+	/*
+	 * TBD
+	 * look for headers parameters both in parameters and securityDefinition
+	 * look for body param (swagger allows only one)
+	 * look for form parameters 
+	 * think of how to implement the ret
+	 */
+	
+	
 	request(requestOptions,function(error,response,body){
 		if(error){
 			callback(error);
