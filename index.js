@@ -21,16 +21,9 @@ var Chance = require('chance');
 var chance = new Chance();
 var camelcase = require('camelcase');
 var querystring = require('querystring');
+
 /*
  * ENV
- */
-var SCOPE = '@shaharsol';
-//var SCOPE = '@commandcar';
-
-var APIS_DIR = path.join(__dirname,'node_modules',SCOPE);
-//console.log('api dir: ' + APIS_DIR);
-/*
- * make sure we have a USE dir
  */
 
 var USE_DIR = path.join(os.tmpdir(),'commandcar-use');
@@ -46,13 +39,6 @@ try{
  */
 
 var database = loadDatabaseFromCache();
-if(!database){
-	console.log('couldnt find cache, building database');
-	database = buildDatabaseFromFileSystem();
-}
-
-
-
 
 _.each(database,function(apiContent,api){
 	console.log('processing commands for ' + api);
@@ -141,44 +127,17 @@ program
 	.option('-l, --location [location of directory]','location of directory')
 	.action(function(options){
 		console.log('loading ' + options.location);
-		var rsync = new Rsync()
-					.flags('avz')
-					.source(options.location)
-					.destination(APIS_DIR);
-		rsync.execute(function(error, code, cmd) {
-		    if(error){
-		    	console.log(code + ' : ' + error);
-		    }else{
-		    	database = buildDatabaseFromFileSystem();
-		    }
-		});
+		
+		if(path.extname(options.location) == '.yaml'){
+			var apiName = path.basename(options.location,'.yaml');
+			database[apiName] = yaml.load(options.location);
+			fs.writeFileSync(path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
+		}else{
+			console.log('Can\'t load because file is not yaml');
+		}
+		
+		
 	});
-
-program
-	.command('install')
-	.option('-a, --api [api name]','api name')
-	.action(function(options){
-		console.log('installing ' + SCOPE + "/" + options.api);
-		npm.load(function (err) {
-			if(err){
-				console.log('error installing from npm: ' + err);
-			}else{
-				npm.commands.install(__dirname,[SCOPE + "/" + options.api], function (er, data) {
-					if(er){
-						console.log('npm error: ' + er);
-					}
-					database = buildDatabaseFromFileSystem();
-				});
-				npm.on("log", function (message) {
-					console.log(message);
-				});
-				
-			}
-		});
-
-	});
-
-
 
 
 program.parse(process.argv);
@@ -383,7 +342,7 @@ function buildDatabaseFromFileSystem(){
 }
 
 function loadDatabaseFromCache(){
-	var cache = null;
+	var cache = {};
 	try{
 		console.log('reading cache from: ' + path.join(os.tmpdir(),'commandcar-cache.json'));
 		cache = fs.readFileSync(path.join(os.tmpdir(),'commandcar-cache.json'), 'utf-8');
