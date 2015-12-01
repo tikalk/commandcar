@@ -284,11 +284,12 @@ function performRequest(api,path,verb,options,callback){
 //	console.log('requestOptions: ' + util.inspect(requestOptions));
 	
 	/*
-	 * TBD
+	 * TBD TBD TBD
 	 * look for headers parameters both in parameters and securityDefinition
 	 * look for body param (swagger allows only one)
 	 * look for form parameters 
 	 * think of how to implement the ret
+	 * TBD TBD TBD
 	 */
 	
 	
