@@ -129,7 +129,7 @@ program
 	.option('-u, --url [online yaml file]','online yaml file')
 	.option('-a, --api_model [name of an api_model path]','name of an api_model path')
 	.action(function(options){
-		console.log('loading ' + options.location);
+		console.log('loading ' + options.name);
 		
 		if(options.file){
 			if(path.extname(options.file) == '.yaml'){
@@ -150,7 +150,7 @@ program
 			request(url,function(error,response,body){
 				if(error){
 					console.log('error in loading yaml from url: ' + error);
-				}else if(reponse.statusCode != '200'){
+				}else if(response.statusCode != '200'){
 					console.log('error in loading yaml from url: ' + body);
 				}else{
 					var apiName = options.name;
