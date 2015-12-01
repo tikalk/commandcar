@@ -34,7 +34,7 @@ var APIS_DIR = path.join(__dirname,'node_modules',SCOPE);
  */
 
 var USE_DIR = path.join(os.tmpdir(),'commandcar-use');
-//console.log('use dir: ' + USE_DIR);
+console.log('use dir: ' + USE_DIR);
 try{
 	fs.mkdirSync(USE_DIR);
 }catch(e){
@@ -84,6 +84,8 @@ _.each(database,function(apiContent,api){
 				}
 			}
 			
+			// also always add a "-r --ret" option
+			theCommand.option('-r, --ret [return value]','specify return value');
 			
 			_.each(verbContent.parameters,function(parameter){
 				var short = getShort(parameter.name,shorts);
@@ -116,6 +118,20 @@ _.each(database,function(apiContent,api){
 			
 		})
 	});
+	
+	// add use and unuse commands if applicable
+	if(('securityDefinitions' in apiContent) && ('api_key' in apiContent.securityDefinitions)){
+		var useCommand = program.command(api + '.use');
+		var short = getShort(apiContent.securityDefinitions.api_key.name,[]);
+		useCommand.option('-' + short + ', --' + apiContent.securityDefinitions.api_key.name + ' <' + apiContent.securityDefinitions.api_key.name + '>',apiContent.securityDefinitions.api_key.name);
+		useCommand.action(function(options){
+			use(api,options);
+		})
+		var unuseCommand = program.command(api + '.unuse');
+		unuseCommand.action(function(options){
+			unuse(api,options);
+		})
+	}
 	
 	
 })
@@ -164,57 +180,30 @@ program
 
 
 
-//program
-//	.command('facebook_get')
-//	.option('-u, --uid [user id]','facebook user id')
-//	.action(function(options){
-//		console.log('should call facebook with uid ' + options.uid)
-//	});
-//
-//program
-//	.command('dropbox_get')
-//	.option('-u, --uid [user id]','dropbox user id')
-//	.action(function(options){
-//		console.log('should call dropbox with uid ' + options.uid)
-//	});
-
-//console.log('prigram: ' + util.inspect(program));
 
 program.parse(process.argv);
 
-function performCommand(api,path,verb,options,callback){
-	switch(command){
-	case 'use':
-		use(api,options,callback);
-		break;
-	case 'unuse':
-		unuse(api,callback);
-		break;
-	default:
-		performRequest(api,path,verb,options,callback);
-	}
-}
-
-function use(api,options,callback){
+function use(api,options){
 	try{
-		var currentApi = _.find(database,function(item){return item.name == api;});
+		
 		var useOptions = {};
-		_.each(currentApi.use_options,function(useOption){
-			useOptions[useOption.long] = options[useOption.long];
-		});
+		if(('securityDefinitions' in database[api]) && ('api_key' in database[api].securityDefinitions)){
+//			console.log('options name: ' + database[api].securityDefinitions.api_key.name);
+//			console.log('value: ' + )
+			useOptions[database[api].securityDefinitions.api_key.name] = options[normalizeParameterName(database[api].securityDefinitions.api_key.name)];
+		}
 		fs.writeFileSync(path.join(USE_DIR,api + '.json'),JSON.stringify(useOptions));
-		callback(null);
+		
 	}catch(e){
-		callback(e);
+		console.log(e);
 	}
 }
 
-function unuse(api,callback){
+function unuse(api){
 	try{
 		fs.unlinkSync(path.join(USE_DIR,api + '.json'));
-		callback(null);
 	}catch(e){
-		callback(e);
+		console.log(e);
 	}
 }
 
