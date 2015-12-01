@@ -15,11 +15,9 @@
     "underscore.string": "*",
     "jsonic": "*",
     "commander": "*",
-    "rsync": "*",
     "npm": "*",
     "yamljs": "*",
     "chance": "*",
-    "camelcase": "*",
     "request": "*"
   }
 }

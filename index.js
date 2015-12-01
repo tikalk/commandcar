@@ -11,7 +11,6 @@ var us = require('underscore.string');
 var request = require('request');
 var fs = require('fs');
 var jsonic = require('jsonic');
-var Rsync = require('rsync');
 var os = require('os');
 var npm = require('npm');
 var url = require('url');
@@ -19,8 +18,6 @@ var path = require('path');
 var yaml = require('yamljs');
 var Chance = require('chance');
 var chance = new Chance();
-var camelcase = require('camelcase');
-var querystring = require('querystring');
 
 /*
  * ENV
@@ -39,6 +36,10 @@ try{
  */
 
 var database = loadDatabaseFromCache();
+
+/*
+ * process database into commands, options etc
+ */
 
 _.each(database,function(apiContent,api){
 	console.log('processing commands for ' + api);
@@ -86,11 +87,6 @@ _.each(database,function(apiContent,api){
 				
 				theCommand.option('-' + short + ', --' + parameter.name + leftTag + parameter.name + rightTag,parameter.description);
 			});
-			// TBD
-			/*
-			 * 
-			 * also, add use and unuse with this particular key!
-			 */
 			
 			theCommand.action(function(options,o1,o2){
 				performRequest(api,path,verb,options,function(err,ret){
@@ -206,30 +202,19 @@ function performRequest(api,path,verb,options,callback){
 	var form;
 	var pathStr = '';
 	
-	// TBD add port (i.e. default 80 but surely not always)
-	// TBD consider passing the entire api and command objects, and not only thier names, 
-	// hence not having to find them...
-	
-//	try{
-//		useOptions = jsonic(fs.readFileSync(path.join(USE_DIR,api + '.json'), 'utf8'));
-//		_.each(useOptions,function(value,key){
-//			options[key] = value;
-//		})
-//	}catch(e){
-//		
-//	}
-	
-	
-	
+	// load use options
+	try{
+		useOptions = jsonic(fs.readFileSync(path.join(USE_DIR,api + '.json'), 'utf8'));
+		_.each(useOptions,function(value,key){
+			options[key] = value;
+		})
+	}catch(e){
+		
+	}
 	
 	var protocol = database[api].schemes[0];
-	console.log('protocil: ' + protocol);
 	var host = database[api].host;
-	console.log('host: ' + host);
 
-	
-	
-//	theUrl = currentApi.protocol + '://' + currentApi.hostname;
 	pathStr = database[api].basePath + path
 	console.log('pathStr: ' + pathStr);
 
@@ -271,10 +256,6 @@ function performRequest(api,path,verb,options,callback){
 			query[database[api].securityDefinitions.api_key.name] = options[normalizeParameterName(database[api].securityDefinitions.api_key.name)]
 		}
 	}
-	
-	var queryString = querystring.stringify(query);
-	
-console.log('querystring: ' + queryString);
 	
 	var urlObj = {
 		protocol: protocol,
@@ -320,51 +301,16 @@ console.log('querystring: ' + queryString);
 		}else{
 			console.log('body is: ' + util.inspect(body));
 			var ret;
-			if('ret' in currentCommand){
+			if('ret' in options){
 				var data = JSON.parse(body);
-				ret = data[currentCommand['ret']];
+				ret = data[options.ret];
 			}else{
 				ret = body;
 			}
-			var data = JSON.parse(body);
 			callback(null,ret);
 		}
 	})
 	
-}
-
-// TBD: need to work with the path module to make it compatible with windows???
-function buildDatabaseFromFileSystem(){
-	var database = {};
-	var api;
-//	var files = fs.readdirSync(__dirname + '/apis/');
-	try{
-		if(fs.lstatSync(APIS_DIR).isDirectory()){
-			var files = fs.readdirSync(APIS_DIR);
-			_.each(files,function(file){
-				
-				// now i expect file to be a yaml file
-				console.log('found file: ' + file);
-				console.log('extname is: ' + path.extname(file));
-				
-				if(path.extname(file) == '.yaml'){
-					console.log('found a yaml!');
-					var apiName = path.basename(file,'.yaml');
-					database[apiName] = yaml.load(path.join(APIS_DIR,file));
-				}
-				
-				
-			});
-		}else{
-			console.log('APIS_DIR doesnt seem to be a directory...');
-		}	
-	}catch(e){
-		console.log('error building db: ' + e);
-	}
-	
-//	console.log('database: ' + util.inspect(database,{depth:8}));
-	fs.writeFileSync(path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
-	return database;
 }
 
 function loadDatabaseFromCache(){
