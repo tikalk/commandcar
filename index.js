@@ -124,20 +124,46 @@ _.each(database,function(apiContent,api){
 
 program
 	.command('load')
-	.option('-l, --location [location of directory]','location of directory')
+	.option('-n, --name <name of the API>','name of the API')
+	.option('-f, --file [local yaml file]','local yaml file')
+	.option('-u, --url [online yaml file]','online yaml file')
+	.option('-a, --api_model [name of an api_model path]','name of an api_model path')
 	.action(function(options){
 		console.log('loading ' + options.location);
 		
-		if(path.extname(options.location) == '.yaml'){
-			var apiName = path.basename(options.location,'.yaml');
-			database[apiName] = yaml.load(options.location);
-			fs.writeFileSync(path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
+		if(options.file){
+			if(path.extname(options.file) == '.yaml'){
+//				var apiName = path.basename(options.file,'.yaml');
+				var apiName = options.name;
+				database[apiName] = yaml.load(options.file);
+				fs.writeFileSync(path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
+			}else{
+				console.log('Can\'t load because file is not yaml');
+			}
 		}else{
-			console.log('Can\'t load because file is not yaml');
+			var url;
+			if(options.api_model){
+				url = 'https://raw.githubusercontent.com/APIs-guru/api-models/master/APIs/' + options.api_model + '/swagger.yaml';
+			}else{
+				url = options.url;
+			}
+			request(url,function(error,response,body){
+				if(error){
+					console.log('error in loading yaml from url: ' + error);
+				}else if(reponse.statusCode != '200'){
+					console.log('error in loading yaml from url: ' + body);
+				}else{
+					var apiName = options.name;
+					database[apiName] = yaml.parse(body);
+					fs.writeFileSync(path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
+				}
+			})
 		}
 		
 		
+		
 	});
+
 
 
 program.parse(process.argv);
