@@ -49,6 +49,10 @@ commandcar load --api_model instagram.com/1.0.0
 
 You can browse through the available APIs [here](https://github.com/APIs-guru/api-models/tree/master/APIs) and use the relative path to the directory containing the swagger file from here. For example, the instagram API v1 resides here: https://github.com/APIs-guru/api-models/tree/master/APIs/instagram.com/1.0.0. Use "instagram.com/1.0.0" as the value for the --api_model argument.
 
+# Loads are not persistent
+
+To avoid permission issues, commandcar caches the loads you make in a temporary storage. This doesn't need to affect you dramatically, however if you're running commandcar commands within other bash scripts it may be a good idea to include any `load` commands in the script before actually invoking the API commands. 
+
 # Invoking APIs using commandcar
 
 Once you've loaded API defintions, you can use `commandcar -h` to see the new commands and options you can use. Here's an example from the instagram API:
@@ -138,9 +142,9 @@ commandcar facebook.get_user --accees_token 123456 --ret first_name
 Now let's assume that the API response is:
 ```
 {
-   "uid":"123456789",
-   "first_name":"John",
-   "last_name":"Doe"
+   "uid": "123456789",
+   "first_name": "John",
+   "last_name": "Doe"
 }
 ```
 
