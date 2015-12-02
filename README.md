@@ -1,5 +1,7 @@
 # commandcar - curl on steroids
 
+[![Join the chat at https://gitter.im/tikalk/commandcar](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tikalk/commandcar?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 commandcar is a CLI tool that can easily communicate with any API. It simplifies unreadable and complicated curl commands, and has some nice features to make automation of API calls much simpler and bash scripts more streamlined.
 
 Here's an example of what it can look like
