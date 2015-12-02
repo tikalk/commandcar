@@ -7,7 +7,7 @@
 
 /*
  * TBD TBD TBD
- * enable json and not only yaml in load
+ * last thing before v 0.1.0 do the oauth thing with aurthorization bearer
  * use the api_model list.json to get versions
  * add a list or search command for api_model
  */
