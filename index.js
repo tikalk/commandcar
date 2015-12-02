@@ -4,6 +4,14 @@
  * Module dependencies.
  */
  
+
+/*
+ * TBD TBD TBD
+ * enable json and not only yaml in load
+ * use the api_model list.json to get versions
+ * add a list or search command for api_model
+ */
+
 var program = require('commander');
 var util = require('util');
 var _ = require('underscore');
@@ -56,7 +64,7 @@ _.each(database,function(apiContent,api){
 		_.each(pathContent,function(verbContent,verb){
 			commandName = api + '.' + verb + '_' +  rejoinedParts;
 			var shorts = [];
-			console.log('found command: ' + commandName);
+//			console.log('found command: ' + commandName);
 			var theCommand = program.command(commandName);
 			
 			// always start with the api key in order to keep its short name persistent over all the api methods
@@ -126,11 +134,13 @@ program
 	.option('-a, --api_model [name of an api_model path]','name of an api_model path')
 	.action(function(options){
 		console.log('loading ' + options.name);
+		var apiName = options.name;
 		
 		if(options.file){
-			if(path.extname(options.file) == '.yaml'){
-//				var apiName = path.basename(options.file,'.yaml');
-				var apiName = options.name;
+			if(path.extname(options.file) == '.json'){
+				database[apiName] = JSON.parse(fs.readFileSync(options.file, 'utf8'));
+				fs.writeFileSync(path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
+			}else if(path.extname(options.file) == '.yaml'){				
 				database[apiName] = yaml.load(options.file);
 				fs.writeFileSync(path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
 			}else{
@@ -139,7 +149,7 @@ program
 		}else{
 			var url;
 			if(options.api_model){
-				url = 'https://raw.githubusercontent.com/APIs-guru/api-models/master/APIs/' + options.api_model + '/swagger.yaml';
+				url = 'https://apis-guru.github.io/api-models/' + options.api_model + '/swagger.yaml';
 			}else{
 				url = options.url;
 			}
@@ -149,8 +159,13 @@ program
 				}else if(response.statusCode != '200'){
 					console.log('error in loading yaml from url: ' + body);
 				}else{
-					var apiName = options.name;
-					database[apiName] = yaml.parse(body);
+					// it's either json or yaml
+					try{
+						database[apiName] = JSON.parse(body);
+					}catch(e){
+						database[apiName] = yaml.parse(body);
+					}
+					
 					fs.writeFileSync(path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
 				}
 			})
@@ -199,8 +214,10 @@ function performRequest(api,path,verb,options,callback){
 	// some allow auth to pass as params
 	// some require basic auth
 	var theUrl;
-	var form;
 	var pathStr = '';
+	var headers = {};
+	var form = {};
+	var body;
 	
 	// load use options
 	try{
@@ -243,6 +260,12 @@ function performRequest(api,path,verb,options,callback){
 		
 		if(parameter['in'] == 'query'){
 			query[parameter.name] = options[normalizeParameterName(parameter.name)];
+		}else if(parameter['in'] == 'header'){
+			headers[parameter.name] = options[normalizeParameterName(parameter.name)];
+		}else if(parameter['in'] == 'form'){
+			form[parameter.name] = options[normalizeParameterName(parameter.name)];
+		}else if(parameter['in'] == 'body'){
+			body = options[normalizeParameterName(parameter.name)];
 		}
 	}); 
 	
@@ -268,8 +291,7 @@ function performRequest(api,path,verb,options,callback){
 	theUrl = url.format(urlObj);
 	console.log('url: ' + theUrl);
 		
-	var headers = {};
-	var form = {};
+	
 	
 	var requestOptions = {
 		url: theUrl,
@@ -280,14 +302,17 @@ function performRequest(api,path,verb,options,callback){
 	if(!_.isEmpty(form)){
 		requestOptions['form'] = form;
 	}
+	if(!_.isEmpty(headers)){
+		requestOptions['headers'] = headers;
+	}
+	if(body){
+		requestOptions['body'] = body;
+	}
 	
 //	console.log('requestOptions: ' + util.inspect(requestOptions));
 	
 	/*
 	 * TBD TBD TBD
-	 * look for headers parameters both in parameters and securityDefinition
-	 * look for body param (swagger allows only one)
-	 * look for form parameters 
 	 * think of how to implement the ret
 	 * TBD TBD TBD
 	 */
