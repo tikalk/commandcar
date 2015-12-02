@@ -70,14 +70,27 @@ _.each(database,function(apiContent,api){
 			
 			// always start with the api key in order to keep its short name persistent over all the api methods
 			if('security' in verbContent){
-				var apiKey = _.find(verbContent.security,function(item){
-					return 'api_key' in item;
-				})
-				if(apiKey){
-					var short = getShort(apiContent.securityDefinitions.api_key.name,shorts);
-					shorts.push(short);
-					theCommand.option('-' + short + ', --' + apiContent.securityDefinitions.api_key.name + ' <' + apiContent.securityDefinitions.api_key.name + '>',apiContent.securityDefinitions.api_key.name);
+				var securityParameterName;
+				var securityDefinition = _.keys(verbContent.security[0])[0];
+				if(apiContent.securityDefinitions[securityDefinition].type == 'apiKey'){
+					securityParameterName = apiContent.securityDefinitions[securityDefinition].name;
+				}else if(apiContent.securityDefinitions[securityDefinition].type == 'oauth2'){
+					securityParameterName = 'access_token';
 				}
+				if(securityParameterName){
+					var short = getShort(securityParameterName,shorts);
+					shorts.push(short);
+					theCommand.option('-' + short + ', --' + securityParameterName + ' <' + securityParameterName + '>',securityParameterName);
+				}
+				
+//				var apiKey = _.find(verbContent.security,function(item){
+//					return 'api_key' in item;
+//				})
+//				if(apiKey){
+//					var short = getShort(apiContent.securityDefinitions.api_key.name,shorts);
+//					shorts.push(short);
+//					theCommand.option('-' + short + ', --' + apiContent.securityDefinitions.api_key.name + ' <' + apiContent.securityDefinitions.api_key.name + '>',apiContent.securityDefinitions.api_key.name);
+//				}
 			}
 			
 			// also always add a "-r --ret" option
@@ -111,18 +124,41 @@ _.each(database,function(apiContent,api){
 	});
 	
 	// add use and unuse commands if applicable
-	if(('securityDefinitions' in apiContent) && ('api_key' in apiContent.securityDefinitions)){
-		var useCommand = program.command(api + '.use');
-		var short = getShort(apiContent.securityDefinitions.api_key.name,[]);
-		useCommand.option('-' + short + ', --' + apiContent.securityDefinitions.api_key.name + ' <' + apiContent.securityDefinitions.api_key.name + '>',apiContent.securityDefinitions.api_key.name);
-		useCommand.action(function(options){
-			use(api,options);
-		})
-		var unuseCommand = program.command(api + '.unuse');
-		unuseCommand.action(function(options){
-			unuse(api,options);
-		})
+	if('securityDefinitions' in apiContent){
+		var securityParameterName;
+		var securityDefinition = _.keys(apiContent.securityDefinitions)[0];
+		if(apiContent.securityDefinitions[securityDefinition].type == 'apiKey'){
+			securityParameterName = apiContent.securityDefinitions[securityDefinition].name;
+		}else if(apiContent.securityDefinitions[securityDefinition].type == 'oauth2'){
+			securityParameterName = 'access_token';
+		}
+		if(securityParameterName){
+			var useCommand = program.command(api + '.use');
+			var short = getShort(apiContent.securityDefinitions.api_key.name,[]);
+			useCommand.option('-' + short + ', --' + apiContent.securityDefinitions.api_key.name + ' <' + apiContent.securityDefinitions.api_key.name + '>',apiContent.securityDefinitions.api_key.name);
+			useCommand.action(function(options){
+				use(api,options);
+			})
+			var unuseCommand = program.command(api + '.unuse');
+			unuseCommand.action(function(options){
+				unuse(api,options);
+			})
+		}
+		
 	}
+	
+//	if(('securityDefinitions' in apiContent) && ('api_key' in apiContent.securityDefinitions)){
+//		var useCommand = program.command(api + '.use');
+//		var short = getShort(apiContent.securityDefinitions.api_key.name,[]);
+//		useCommand.option('-' + short + ', --' + apiContent.securityDefinitions.api_key.name + ' <' + apiContent.securityDefinitions.api_key.name + '>',apiContent.securityDefinitions.api_key.name);
+//		useCommand.action(function(options){
+//			use(api,options);
+//		})
+//		var unuseCommand = program.command(api + '.unuse');
+//		unuseCommand.action(function(options){
+//			unuse(api,options);
+//		})
+//	}
 	
 	
 })
