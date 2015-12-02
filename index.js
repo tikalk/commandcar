@@ -95,6 +95,7 @@ _.each(database,function(apiContent,api){
 			
 			// also always add a "-r --ret" option
 			theCommand.option('-r, --ret [return value]','specify return value');
+			shorts.push('r');
 			
 			_.each(verbContent.parameters,function(parameter){
 				var short = getShort(parameter.name,shorts);
