@@ -17,106 +17,102 @@ sudo npm install commandcar -g
 
 # Using commandcar
 
-A fresh commandcar install is a powerful yet empty skeleton. In order to make commandcar usable you first need to `load` or `install` an API definition, and that's how you extend its power. 
+A fresh commandcar install is a powerful yet empty skeleton. In order to make commandcar usable you need to `load` API definitions, and that's how you extend its power.
 
-Basically, you `load` your own API definitions, and when you `install`, you install an API definition that another generous developer had already defined and pushed to the commandcar repository.
-
-# Installing an API
-
-Search for the API you wish to install by browsing our [apis repository](https://github.com/shaharsol/commandcar/tree/master/apis), and then install it like this:
-
-```
-sudo commandcar install --api facebook
-```
-
-Note: Facebook is used as an example API throughout this doc, though we didn't practically implement it. If you wish to do so, please do! We're waiting for your pull requests ;-) 
+API Definitions are [swagger2.0](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md) files. You can create them yourself, for example if you're developing an API and want to use commandcar to run automated tests against it, or you can use existing public files. commandcar accepts either `json` or `yaml` swagger files.  
 
 # Loading an API
 
-Define an API in a folder somewhere on your local machine (see next section) and load it like this:
+There are three methods to load an API definition:
+
+## Loading a local file
 
 ```
-sudo commandcar load --location ~/dev/commandcar/apis/my_api
-```
-
-# API Definition
-
-An API Definition is a file system directory. The name of the directory gives the API its name. In the root of the directory resides an `api.json` manifest file.
-
-API commands are described each in their own json file under the `commands` sub directory. So essentially, it should all look something like:
+commandcar load --file ~/dev/commandcar/apis/my_api.json
 
 ```
-+- facebook
-   +- api.json
-   +- commands
-      +- get.json
-      +- like.json
-      +- comment.json
-```
 
-# api.json
-
-The file should contain the paramteres that are applied to all (or at least, most) commands in the API. for example:
+## Loading from a URL
 
 ```
-{
-	protocol: "https",
-	hostname: "graph.facebook.com",
-}
-```
-
-# command json
-
-Specific info for each command. for example:
+commandcar load --url http://some.domain.com/my/api/swagger.yaml
 
 ```
-{
-	 path_template: '/{uid}?fields=name&access_token={access_token}',
-	 ret: 'name',
-	 options: [
-       {
-    	   short: 'u',
-    	   long: 'uid',
-    	   def: 'user id',
-    	   desc: 'facebook user id',
-       },
-       {
-    	   short: 'a',
-    	   long: 'access_token',
-    	   def: 'access token',
-    	   desc: 'access_token',
-       },
-	 ]
- }
-			 
-```
 
-Once this command is loaded, you can use the commandline such as:
+## Loading from api-models
+
+[api-models](https://github.com/APIs-guru/api-models) is a GitHub repository of public available swagger files for many public APIs. 
 
 ```
-commandcar facebook.get --uid 123456 --access_token abcdefg
+commandcar load --api_model instagram.com/1.0.0
 ```
 
-It is noteworthy to pay attention to the following fields:
-* `ret` - given a json response from the API call, you can select which field you want returned and being output. If you ommit this, the entire response body will be sent to output.
-* `options` - this is an array of command line options you want to enable for this command. the long name of each option is the one used for placeholders around other fields, using the `{` and `}` characters.   
+You can browse through the available APIs [here](https://github.com/APIs-guru/api-models/tree/master/APIs) and use the relative path to the directory containing the swagger file from here. For example, the instagram API v1 resides here: https://github.com/APIs-guru/api-models/tree/master/APIs/instagram.com/1.0.0. Use "instagram.com/1.0.0" as the value for the --api_model argument.
 
-# Examples
+# Invoking APIs using commandcar
 
-The best way to learn more about API definition would be to take a look at how we defined some basic APIs ourselves. 
-The [instagram API](https://github.com/shaharsol/commandcar/tree/master/apis/instagram) is given with the users endpoint complete.
-The [Google Accounts API](https://github.com/shaharsol/commandcar/tree/master/apis/google_accounts) demonstrates how to use the `form` element.
-You can use the `headers` element very similarly, for example to pass an oauth token
+Once you've loaded API defintions, you can use `commandcar -h` to see the new commands and options you can use. Here's an example from the instagram API:
+
 ```
-"headers": {
-	"Authorization": "Bearer {access_token}"
-	"Content-Type": "application/json"
-}
+  Commands:
+
+    instagram.get_geographies_media_recent [options] 
+    instagram.get_locations_search [options]         
+    instagram.get_locations [options]                
+    instagram.get_locations_media_recent [options]   
+    instagram.get_media_popular [options]            
+    instagram.get_media_search [options]             
+    instagram.get_media_shortcode [options]          
+    instagram.get_media [options]                    
+    instagram.get_media_comments [options]           
+    instagram.post_media_comments [options]          
+    instagram.delete_media_comments [options]        
+    instagram.delete_media_likes [options]           
+    instagram.get_media_likes [options]              
+    instagram.post_media_likes [options]             
+    instagram.get_tags_search [options]              
+    instagram.get_tags [options]                     
+    instagram.get_tags_media_recent [options]        
+    instagram.get_users_search [options]             
+    instagram.get_users_self_feed [options]          
+    instagram.get_users_self_media_liked [options]   
+    instagram.get_users_self_requested_by [options]  
+    instagram.get_users [options]                    
+    instagram.get_users_followed_by [options]        
+    instagram.get_users_follows [options]            
+    instagram.get_users_media_recent [options]       
+    instagram.get_users_relationship [options]       
+    instagram.post_users_relationship [options]      
+    instagram.use [options]                          
+    instagram.unuse                                  
+    load [options]                                   
+
+  Options:
+
+    -h, --help  output usage information
+```
+
+You can then run help for any given command and see what your options are. For example, `commandcar instagram.get_media_search -h` will result in:
+
+```
+  Usage: instagram.get_media_search [options]
+
+  Options:
+
+    -h, --help                           output usage information
+    -a, --access_token <access_token>    access_token
+    -r, --ret [return value]             specify return value
+    -l, --lat <lat>                      Latitude of the center search coordinate. If used, `lng` is required.
+    -L, --lng <lng>                      Longitude of the center search coordinate. If used, `lat` is required.
+    -m, --min_timestamp [min_timestamp]  A unix timestamp. All media returned will be taken later than this timestamp.
+    -M, --max_timestamp [max_timestamp]  A unix timestamp. All media returned will be taken earlier than this timestamp.
+    -d, --distance [distance]            Default is 1km (distance=1000), max distance is 5km.
+
 ```
 
 # use command
 
-use is a special command that is added to any API that has `use_options` in its `api.json` file and doesn't need to be defined (example can be seen in [instagram's api.json](https://github.com/tikalk/commandcar/blob/master/apis/instagram/api.json)). If you're doing a lot of API calls with identical parameters, for instance an access_token, then you can `use` them instead, and then they will be included in any following call to the API, until you `unuse` it or untill you `use` another parameter value.
+use is a special command that is added to any API that has `securityDefinitions`. If you're doing a lot of API calls with identical authorization parameters, for instance an access_token, then you can `use` them instead, and then they will be included in any following call to the API, until you `unuse` it or until you `use` another parameter value.
 
 for example:
 
@@ -127,3 +123,4 @@ commandcar facebook.comment --post_id 1234567 --text "what a cool post"
 commandcar facebook.add_friend --uid 987654321
 ```
 
+Note: Facebook is used as an example API throughout this doc, though we didn't practically implement it as a swagger file.  
