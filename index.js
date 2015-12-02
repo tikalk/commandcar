@@ -309,13 +309,27 @@ function performRequest(api,path,verb,options,callback){
 	
 	// do we have to add security params to query?
 	if('security' in database[api].paths[path][verb]){
-		var apiKey = _.find(database[api].paths[path][verb].security,function(item){
-			return 'api_key' in item;
-		})
-		console.log('api def: ' + util.inspect(database[api].securityDefinitions.api_key))
-		if(database[api].securityDefinitions.api_key['in'] == 'query'){
-			query[database[api].securityDefinitions.api_key.name] = options[normalizeParameterName(database[api].securityDefinitions.api_key.name)]
+		
+		
+		var securityParameterName;
+		var securityDefinition = _.keys(database[api].paths[path][verb].security[0])[0];
+		if(database[api].securityDefinitions[securityDefinition].type == 'apiKey'){
+			if(database[api].securityDefinitions[securityDefinition]['in'] == 'query'){
+				query[database[api].securityDefinitions[securityDefinition].name] = options[normalizeParameterName(database[api].securityDefinitions[securityDefinition].name)]
+			}else if(database[api].securityDefinitions[securityDefinition]['in'] == 'header'){
+				headers[database[api].securityDefinitions[securityDefinition].name] = options[normalizeParameterName(database[api].securityDefinitions[securityDefinition].name)]
+			}
+		}else if(database[api].securityDefinitions[securityDefinition].type == 'oauth2'){
+			headers['Authorization'] = 'Bearer ' + options['access_token'];
 		}
+		
+//		var apiKey = _.find(database[api].paths[path][verb].security,function(item){
+//			return 'api_key' in item;
+//		})
+//		console.log('api def: ' + util.inspect(database[api].securityDefinitions.api_key))
+//		if(database[api].securityDefinitions.api_key['in'] == 'query'){
+//			query[database[api].securityDefinitions.api_key.name] = options[normalizeParameterName(database[api].securityDefinitions.api_key.name)]
+//		}
 	}
 	
 	var urlObj = {
