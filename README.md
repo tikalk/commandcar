@@ -123,4 +123,25 @@ commandcar facebook.comment --post_id 1234567 --text "what a cool post"
 commandcar facebook.add_friend --uid 987654321
 ```
 
-Note: Facebook is used as an example API throughout this doc, though we didn't practically implement it as a swagger file.  
+Note: Facebook is used as an example API throughout this doc, though we didn't practically implement it as a swagger file.
+
+# -r --ret
+
+This is an option that is attached automatically to any command and enables you to specify exactly what you wish to receive as output. 
+
+So for example let's assume you make this call:
+
+```
+commandcar facebook.get_user --accees_token 123456 --ret first_name
+```
+
+Now let's assume that the API response is:
+```
+{
+   "uid":"123456789",
+   "first_name":"John",
+   "last_name":"Doe"
+}
+```
+
+Then the output would be simply `John` instead of the entire json.
