@@ -134,8 +134,8 @@ _.each(database,function(apiContent,api){
 		}
 		if(securityParameterName){
 			var useCommand = program.command(api + '.use');
-			var short = getShort(apiContent.securityDefinitions.api_key.name,[]);
-			useCommand.option('-' + short + ', --' + apiContent.securityDefinitions.api_key.name + ' <' + apiContent.securityDefinitions.api_key.name + '>',apiContent.securityDefinitions.api_key.name);
+			var short = getShort(securityParameterName,[]);
+			useCommand.option('-' + short + ', --' + securityParameterName + ' <' + securityParameterName + '>',securityParameterName);
 			useCommand.action(function(options){
 				use(api,options);
 			})
