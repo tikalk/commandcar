@@ -22,7 +22,7 @@ var jsonic = require('jsonic');
 var os = require('os');
 var npm = require('npm');
 var url = require('url');
-var path = require('path');
+var Path = require('path');
 var yaml = require('yamljs');
 var Chance = require('chance');
 var chance = new Chance();
@@ -31,7 +31,7 @@ var chance = new Chance();
  * ENV
  */
 
-var USE_DIR = path.join(os.tmpdir(),'commandcar-use');
+var USE_DIR = Path.join(os.tmpdir(),'commandcar-use');
 console.log('use dir: ' + USE_DIR);
 try{
 	fs.mkdirSync(USE_DIR);
@@ -137,12 +137,12 @@ program
 		var apiName = options.name;
 		
 		if(options.file){
-			if(path.extname(options.file) == '.json'){
+			if(Path.extname(options.file) == '.json'){
 				database[apiName] = JSON.parse(fs.readFileSync(options.file, 'utf8'));
-				fs.writeFileSync(path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
-			}else if(path.extname(options.file) == '.yaml'){				
+				fs.writeFileSync(Path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
+			}else if(Path.extname(options.file) == '.yaml'){				
 				database[apiName] = yaml.load(options.file);
-				fs.writeFileSync(path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
+				fs.writeFileSync(Path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
 			}else{
 				console.log('Can\'t load because file is not yaml');
 			}
@@ -166,7 +166,7 @@ program
 						database[apiName] = yaml.parse(body);
 					}
 					
-					fs.writeFileSync(path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
+					fs.writeFileSync(Path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
 				}
 			})
 		}
@@ -188,7 +188,7 @@ function use(api,options){
 //			console.log('value: ' + )
 			useOptions[database[api].securityDefinitions.api_key.name] = options[normalizeParameterName(database[api].securityDefinitions.api_key.name)];
 		}
-		fs.writeFileSync(path.join(USE_DIR,api + '.json'),JSON.stringify(useOptions));
+		fs.writeFileSync(Path.join(USE_DIR,api + '.json'),JSON.stringify(useOptions));
 		
 	}catch(e){
 		console.log(e);
@@ -197,7 +197,7 @@ function use(api,options){
 
 function unuse(api){
 	try{
-		fs.unlinkSync(path.join(USE_DIR,api + '.json'));
+		fs.unlinkSync(Path.join(USE_DIR,api + '.json'));
 	}catch(e){
 		console.log(e);
 	}
@@ -221,12 +221,13 @@ function performRequest(api,path,verb,options,callback){
 	
 	// load use options
 	try{
-		useOptions = jsonic(fs.readFileSync(path.join(USE_DIR,api + '.json'), 'utf8'));
+		useOptions = jsonic(fs.readFileSync(Path.join(USE_DIR,api + '.json'), 'utf8'));
 		_.each(useOptions,function(value,key){
 			options[key] = value;
+			console.log('loaded ' + options[key] + ' from cache: ' + value);
 		})
 	}catch(e){
-		
+		console.log('error loading use options: ' + e);
 	}
 	
 	var protocol = database[api].schemes[0];
@@ -342,8 +343,8 @@ function performRequest(api,path,verb,options,callback){
 function loadDatabaseFromCache(){
 	var cache = {};
 	try{
-		console.log('reading cache from: ' + path.join(os.tmpdir(),'commandcar-cache.json'));
-		cache = fs.readFileSync(path.join(os.tmpdir(),'commandcar-cache.json'), 'utf-8');
+		console.log('reading cache from: ' + Path.join(os.tmpdir(),'commandcar-cache.json'));
+		cache = fs.readFileSync(Path.join(os.tmpdir(),'commandcar-cache.json'), 'utf-8');
 		cache = jsonic(cache);
 	}catch(e){
 		
