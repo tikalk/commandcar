@@ -8,6 +8,7 @@
 /*
  * TBD TBD TBD
  * last thing before v 0.1.0 do the oauth thing with aurthorization bearer
+ * decide on main.js vs index.js
  * use the api_model list.json to get versions
  * add a list or search command for api_model
  */
@@ -263,7 +264,7 @@ function performRequest(api,path,verb,options,callback){
 			query[parameter.name] = options[normalizeParameterName(parameter.name)];
 		}else if(parameter['in'] == 'header'){
 			headers[parameter.name] = options[normalizeParameterName(parameter.name)];
-		}else if(parameter['in'] == 'form'){
+		}else if(parameter['in'] == 'formData'){
 			form[parameter.name] = options[normalizeParameterName(parameter.name)];
 		}else if(parameter['in'] == 'body'){
 			body = options[normalizeParameterName(parameter.name)];
