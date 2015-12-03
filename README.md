@@ -35,7 +35,7 @@ commandcar load --name my_api --file ~/dev/commandcar/apis/my_api.json
 ## Loading from a URL
 
 ```
-commandcar load --name my_api--url http://some.domain.com/my/api/swagger.yaml
+commandcar load --name my_api --url http://some.domain.com/my/api/swagger.yaml
 
 ```
 
@@ -47,7 +47,7 @@ commandcar load --name my_api--url http://some.domain.com/my/api/swagger.yaml
 commandcar load --name instagram --api_model instagram.com/1.0.0
 ```
 
-You can browse through the available APIs [here](https://github.com/APIs-guru/api-models/tree/master/APIs) and use the relative path to the directory containing the swagger file from here. For example, the instagram API v1 resides here: https://github.com/APIs-guru/api-models/tree/master/APIs/instagram.com/1.0.0. Use "instagram.com/1.0.0" as the value for the --api_model argument.
+You can browse through the available APIs [here](https://github.com/APIs-guru/api-models/tree/master/APIs) and use the relative path to the directory containing the swagger file from this path onward. For example, the instagram API v1 resides here: https://github.com/APIs-guru/api-models/tree/master/APIs/instagram.com/1.0.0. Use "instagram.com/1.0.0" as the value for the --api_model argument.
 
 # Loads are not persistent
 
