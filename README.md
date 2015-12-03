@@ -17,45 +17,51 @@ sudo npm install commandcar -g
 
 # Using commandcar
 
-A fresh commandcar install is a powerful yet empty skeleton. In order to make commandcar usable you need to `load` API definitions, and that's how you extend its power.
+A fresh commandcar install is a powerful yet empty skeleton. In order to make commandcar usable you need to `install` API definitions, and that's how you extend its power.
 
 API Definitions are [swagger2.0](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md) files. You can create them yourself -- for example if you're developing an API and want to use commandcar to run automated tests against it -- or you can use existing public files. commandcar accepts either `json` or `yaml` swagger files.  
 
-# Loading an API
+# Installing an API
 
-There are three methods to load an API definition:
+There are three methods to install an API definition:
 
-## Loading a local file
-
-```
-commandcar load --name my_api --file ~/dev/commandcar/apis/my_api.json
+## Installing a local file
 
 ```
-
-## Loading from a URL
-
-```
-commandcar load --name my_api --url http://some.domain.com/my/api/swagger.yaml
+commandcar install --name my_api --file ~/dev/commandcar/apis/my_api.json
 
 ```
 
-## Loading from api-models
+## Installing from a URL
+
+```
+commandcar install --name my_api --url http://some.domain.com/my/api/swagger.yaml
+
+```
+
+## Installing from api-models
 
 [api-models](https://github.com/APIs-guru/api-models) is a GitHub repository of public available swagger files for many public APIs. 
 
 ```
-commandcar load --name instagram --api_model instagram.com/1.0.0
+commandcar install --name instagram --api_model instagram.com/1.0.0
 ```
 
 You can browse through the available APIs [here](https://github.com/APIs-guru/api-models/tree/master/APIs) and use the relative path to the directory containing the swagger file from this path onward. For example, the instagram API v1 resides here: https://github.com/APIs-guru/api-models/tree/master/APIs/instagram.com/1.0.0. Use "instagram.com/1.0.0" as the value for the --api_model argument. No trailing slashes please.
 
-# Loads are not persistent
+## Upgrading/modifying an installed API
 
-To avoid permission issues, commandcar caches the loads you make in a temporary storage. This doesn't need to affect you dramatically as the cache will not purge during CLI sessions, however if you're running commandcar within other bash scripts it may be a good idea to include any `load` commands in the script before actually invoking the API commands just to be on safe side. 
+Simply run `install` again, it will overwrite the existing installation.
+
+# Uninstall
+
+```
+commandcar uninstall --name instagram
+```
 
 # Invoking APIs using commandcar
 
-Once you've loaded API definitions, you can use `commandcar -h` to see the new commands and options you can use. Here's an example of the command output after loading the instagram API:
+Once you've installed API definitions, you can use `commandcar -h` to see the new commands and options you can use. Here's an example of the command output after installing the instagram API:
 
 ```
   Commands:
@@ -89,7 +95,8 @@ Once you've loaded API definitions, you can use `commandcar -h` to see the new c
     instagram.post_users_relationship [options]      
     instagram.use [options]                          
     instagram.unuse                                  
-    load [options]                                   
+    install [options]                                   
+    uninstall [options]                                   
 
   Options:
 

@@ -43,7 +43,7 @@ try{
 	// ignore. it means it already exists
 }
 
-var USE_DIR = Path.join(os.tmpdir(),'commandcar-use');
+var USE_DIR = Path.join(HOME_DIR,'use');
 //console.log('use dir: ' + USE_DIR);
 try{
 	fs.mkdirSync(USE_DIR);
@@ -55,7 +55,7 @@ try{
  * load database
  */
 
-var database = loadDatabaseFromCache();
+var database = loadDatabase();
 
 /*
  * process database into commands, options etc
@@ -176,26 +176,37 @@ _.each(database,function(apiContent,api){
 })
 
 program
-	.command('load')
+	.command('uninstall')
+	.option('-n, --name <name of the API>','name of the API')
+	.action(function(options){
+		var apiName = options.name;
+		delete database[apiName];
+		saveDatabase();
+	});
+
+program
+	.command('install')
 	.option('-n, --name <name of the API>','name of the API')
 	.option('-f, --file [local yaml file]','local yaml file')
 	.option('-u, --url [online yaml file]','online yaml file')
 	.option('-a, --api_model [name of an api_model path]','name of an api_model path')
 	.action(function(options){
-		console.log('loading ' + options.name);
+//		console.log('loading ' + options.name);
 		var apiName = options.name;
 		
 		if(options.file){
 			if(Path.extname(options.file) == '.json'){
 				database[apiName] = JSON.parse(fs.readFileSync(options.file, 'utf8'));
-				fs.writeFileSync(Path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
-				console.log('loaded %s',apiName);
+//				fs.writeFileSync(Path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
+				saveDatabase();
+				console.log('installed %s',apiName);
 			}else if(Path.extname(options.file) == '.yaml'){				
 				database[apiName] = yaml.load(options.file);
-				fs.writeFileSync(Path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
-				console.log('loaded %s',apiName);
+//				fs.writeFileSync(Path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
+				saveDatabase();
+				console.log('installed %s',apiName);
 			}else{
-				console.log('Can\'t load %s because file is neither json nor yaml',options.file);
+				console.log('Can\'t install %s because file is neither json nor yaml',options.file);
 			}
 		}else{
 			var url;
@@ -206,9 +217,9 @@ program
 			}
 			request(url,function(error,response,body){
 				if(error){
-					console.log('error in loading API from url: %s',error);
+					console.log('error in installing API from url: %s',error);
 				}else if(response.statusCode != '200'){
-					console.log('error in loading API from url: %s',body);
+					console.log('error in installing API from url: %s',body);
 				}else{
 					// it's either json or yaml
 					try{
@@ -217,8 +228,9 @@ program
 						database[apiName] = yaml.parse(body);
 					}
 					
-					fs.writeFileSync(Path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
-					console.log('loaded %s',apiName);
+//					fs.writeFileSync(Path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
+					saveDatabase();
+					console.log('installed %s',apiName);
 				}
 			})
 		}
@@ -425,11 +437,12 @@ function performRequest(api,path,verb,options,callback){
 	
 }
 
-function loadDatabaseFromCache(){
+function loadDatabase(){
 	var cache = {};
 	try{
 //		console.log('reading cache from: ' + Path.join(os.tmpdir(),'commandcar-cache.json'));
-		cache = fs.readFileSync(Path.join(os.tmpdir(),'commandcar-cache.json'), 'utf-8');
+//		cache = fs.readFileSync(Path.join(os.tmpdir(),'commandcar-cache.json'), 'utf-8');
+		cache = fs.readFileSync(Path.join(HOME_DIR,'database.json'), 'utf-8');
 		cache = jsonic(cache);
 	}catch(e){
 		
@@ -465,4 +478,8 @@ function normalizeParameterName(name){
 		newParts.push(parts[i].charAt(0).toUpperCase() + parts[i].slice(1));
 	}
 	return newParts.join('');
+}
+
+function saveDatabase(){
+	fs.writeFileSync(Path.join(HOME_DIR,'database.json'),JSON.stringify(database));
 }
