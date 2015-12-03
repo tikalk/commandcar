@@ -27,10 +27,21 @@ var Path = require('path');
 var yaml = require('yamljs');
 var Chance = require('chance');
 var chance = new Chance();
-
+var homedir = require('homedir');
 /*
  * ENV
  */
+
+//var HOME_DIR = Path.join(os.homedir(),'.commandcar');
+
+var HOME_DIR = Path.join(homedir(),'.commandcar');
+//console.log('home dir: ' + HOME_DIR);
+try{
+	fs.mkdirSync(HOME_DIR);
+}catch(e){
+//	console.log('error creating home dir: %s',e);
+	// ignore. it means it already exists
+}
 
 var USE_DIR = Path.join(os.tmpdir(),'commandcar-use');
 //console.log('use dir: ' + USE_DIR);
