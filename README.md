@@ -47,7 +47,7 @@ commandcar load --name my_api --url http://some.domain.com/my/api/swagger.yaml
 commandcar load --name instagram --api_model instagram.com/1.0.0
 ```
 
-You can browse through the available APIs [here](https://github.com/APIs-guru/api-models/tree/master/APIs) and use the relative path to the directory containing the swagger file from this path onward. For example, the instagram API v1 resides here: https://github.com/APIs-guru/api-models/tree/master/APIs/instagram.com/1.0.0. Use "instagram.com/1.0.0" as the value for the --api_model argument.
+You can browse through the available APIs [here](https://github.com/APIs-guru/api-models/tree/master/APIs) and use the relative path to the directory containing the swagger file from this path onward. For example, the instagram API v1 resides here: https://github.com/APIs-guru/api-models/tree/master/APIs/instagram.com/1.0.0. Use "instagram.com/1.0.0" as the value for the --api_model argument. No trailing slashes please.
 
 # Loads are not persistent
 
@@ -55,7 +55,7 @@ To avoid permission issues, commandcar caches the loads you make in a temporary 
 
 # Invoking APIs using commandcar
 
-Once you've loaded API defintions, you can use `commandcar -h` to see the new commands and options you can use. Here's an example from the instagram API:
+Once you've loaded API definitions, you can use `commandcar -h` to see the new commands and options you can use. Here's an example of the command output after loading the instagram API:
 
 ```
   Commands:
@@ -116,7 +116,7 @@ You can then run help for any given command and see what your options are. For e
 
 # use command
 
-use is a special command that is added to any API that has `securityDefinitions`. If you're doing a lot of API calls with identical authorization parameters, for instance an access_token, then you can `use` them instead, and then they will be included in any following call to the API, until you `unuse` it or until you `use` another parameter value.
+`use` is a special command that is added to any API that has `securityDefinitions`. If you're doing a lot of API calls with identical authorization parameters, for instance an Oauth2 `access_token`, then you can `use` them instead, and then they will be included in any following call to the API, until you `unuse` it or until you `use` another parameter value.
 
 for example:
 
