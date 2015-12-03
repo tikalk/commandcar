@@ -19,7 +19,7 @@ sudo npm install commandcar -g
 
 A fresh commandcar install is a powerful yet empty skeleton. In order to make commandcar usable you need to `load` API definitions, and that's how you extend its power.
 
-API Definitions are [swagger2.0](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md) files. You can create them yourself, for example if you're developing an API and want to use commandcar to run automated tests against it, or you can use existing public files. commandcar accepts either `json` or `yaml` swagger files.  
+API Definitions are [swagger2.0](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md) files. You can create them yourself -- for example if you're developing an API and want to use commandcar to run automated tests against it -- or you can use existing public files. commandcar accepts either `json` or `yaml` swagger files.  
 
 # Loading an API
 
