@@ -33,7 +33,7 @@ var chance = new Chance();
  */
 
 var USE_DIR = Path.join(os.tmpdir(),'commandcar-use');
-console.log('use dir: ' + USE_DIR);
+//console.log('use dir: ' + USE_DIR);
 try{
 	fs.mkdirSync(USE_DIR);
 }catch(e){
@@ -51,7 +51,7 @@ var database = loadDatabaseFromCache();
  */
 
 _.each(database,function(apiContent,api){
-	console.log('processing commands for ' + api);
+//	console.log('processing commands for ' + api);
 	var commandName;
 	_.each(apiContent.paths,function(pathContent,path){
 		var parts = path.split('/');
@@ -178,11 +178,13 @@ program
 			if(Path.extname(options.file) == '.json'){
 				database[apiName] = JSON.parse(fs.readFileSync(options.file, 'utf8'));
 				fs.writeFileSync(Path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
+				console.log('loaded %s',apiName);
 			}else if(Path.extname(options.file) == '.yaml'){				
 				database[apiName] = yaml.load(options.file);
 				fs.writeFileSync(Path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
+				console.log('loaded %s',apiName);
 			}else{
-				console.log('Can\'t load because file is not yaml');
+				console.log('Can\'t load %s because file is neither json nor yaml',options.file);
 			}
 		}else{
 			var url;
@@ -193,9 +195,9 @@ program
 			}
 			request(url,function(error,response,body){
 				if(error){
-					console.log('error in loading yaml from url: ' + error);
+					console.log('error in loading API from url: %s',error);
 				}else if(response.statusCode != '200'){
-					console.log('error in loading yaml from url: ' + body);
+					console.log('error in loading API from url: %s',body);
 				}else{
 					// it's either json or yaml
 					try{
@@ -205,6 +207,7 @@ program
 					}
 					
 					fs.writeFileSync(Path.join(os.tmpdir(),'commandcar-cache.json'),JSON.stringify(database));
+					console.log('loaded %s',apiName);
 				}
 			})
 		}
@@ -221,23 +224,42 @@ function use(api,options){
 	try{
 		
 		var useOptions = {};
-		if(('securityDefinitions' in database[api]) && ('api_key' in database[api].securityDefinitions)){
-//			console.log('options name: ' + database[api].securityDefinitions.api_key.name);
-//			console.log('value: ' + )
-			useOptions[database[api].securityDefinitions.api_key.name] = options[normalizeParameterName(database[api].securityDefinitions.api_key.name)];
+		
+		if('securityDefinitions' in database[api]){
+			var securityParameterName;
+			var securityDefinition = _.keys(database[api].securityDefinitions)[0];
+			if(database[api].securityDefinitions[securityDefinition].type == 'apiKey'){
+				securityParameterName = database[api].securityDefinitions[securityDefinition].name;
+			}else if(database[api].securityDefinitions[securityDefinition].type == 'oauth2'){
+				securityParameterName = 'access_token';
+			}
+			if(securityParameterName){
+				useOptions[securityParameterName] = options[normalizeParameterName(securityParameterName)];
+				fs.writeFileSync(Path.join(USE_DIR,api + '.json'),JSON.stringify(useOptions));
+				console.log('Use successful. any call on %s will now include --%s %s',api,securityParameterName,options[normalizeParameterName(securityParameterName)]);
+			}
+			
 		}
-		fs.writeFileSync(Path.join(USE_DIR,api + '.json'),JSON.stringify(useOptions));
+		
+//		if(('securityDefinitions' in database[api]) && ('api_key' in database[api].securityDefinitions)){
+////			console.log('options name: ' + database[api].securityDefinitions.api_key.name);
+////			console.log('value: ' + )
+//			useOptions[database[api].securityDefinitions.api_key.name] = options[normalizeParameterName(database[api].securityDefinitions.api_key.name)];
+//		}
+//		fs.writeFileSync(Path.join(USE_DIR,api + '.json'),JSON.stringify(useOptions));
+//		console.log('Use successful. any call on %s will now include --%s %s',api,database[api].securityDefinitions.api_key.name,options[normalizeParameterName(database[api].securityDefinitions.api_key.name)]);
 		
 	}catch(e){
-		console.log(e);
+		console.log('error in use command: %s',e);
 	}
 }
 
 function unuse(api){
 	try{
 		fs.unlinkSync(Path.join(USE_DIR,api + '.json'));
+		console.log('All use paramteres for %s are clear.',api);
 	}catch(e){
-		console.log(e);
+		console.log('error in unuse command: %s',e);
 	}
 }
 
@@ -262,40 +284,40 @@ function performRequest(api,path,verb,options,callback){
 		useOptions = jsonic(fs.readFileSync(Path.join(USE_DIR,api + '.json'), 'utf8'));
 		_.each(useOptions,function(value,key){
 			options[key] = value;
-			console.log('loaded ' + options[key] + ' from cache: ' + value);
+//			console.log('loaded ' + options[key] + ' from cache: ' + value);
 		})
 	}catch(e){
-		console.log('error loading use options: ' + e);
+		console.log('error loading use options: %s',e);
 	}
 	
 	var protocol = database[api].schemes[0];
 	var host = database[api].host;
 
 	pathStr = database[api].basePath + path
-	console.log('pathStr: ' + pathStr);
+//	console.log('pathStr: ' + pathStr);
 
 	var pathParts = pathStr.split('/');
 	var newParts = [];
 	_.each(pathParts,function(pathPart){
 		if(us(pathPart).startsWith('{') && us(pathPart).endsWith('}')){
-			console.log('found a param');
-			console.log('param name: ' + pathPart.substr(1,pathPart.length-2));
-			console.log('cameld case: ' + normalizeParameterName(pathPart.substr(1,pathPart.length-2)));
-			console.log('param value: ' + options[normalizeParameterName(pathPart.substr(1,pathPart.length-2))]);
+//			console.log('found a param');
+//			console.log('param name: ' + pathPart.substr(1,pathPart.length-2));
+//			console.log('cameld case: ' + normalizeParameterName(pathPart.substr(1,pathPart.length-2)));
+//			console.log('param value: ' + options[normalizeParameterName(pathPart.substr(1,pathPart.length-2))]);
 			pathPart = options[normalizeParameterName(pathPart.substr(1,pathPart.length-2))];
 		}
 		newParts.push(pathPart);
 	});
 	pathStr = newParts.join('/');
-	console.log('pathStr: ' + pathStr);
+//	console.log('pathStr: ' + pathStr);
 	
 //	console.log(util.inspect(options));
 	var query = {};
 //	console.log('options: ' + util.inspect(options));
 	_.each(database[api].paths[path][verb].parameters,function(parameter){
-		console.log('parameter name: ' + parameter.name);
-		console.log('parameter name cameled: ' + normalizeParameterName(parameter.name));
-		console.log('parameter value: ' + options[normalizeParameterName(parameter.name)]);
+//		console.log('parameter name: ' + parameter.name);
+//		console.log('parameter name cameled: ' + normalizeParameterName(parameter.name));
+//		console.log('parameter value: ' + options[normalizeParameterName(parameter.name)]);
 		
 		if(parameter['in'] == 'query'){
 			query[parameter.name] = options[normalizeParameterName(parameter.name)];
@@ -342,7 +364,7 @@ function performRequest(api,path,verb,options,callback){
 	// TBD: dont forget basic auth!
 	
 	theUrl = url.format(urlObj);
-	console.log('url: ' + theUrl);
+//	console.log('url: ' + theUrl);
 		
 	
 	
@@ -378,7 +400,7 @@ function performRequest(api,path,verb,options,callback){
 //			console.log('status code: ' + response.statusCode);
 			callback(body);
 		}else{
-			console.log('body is: ' + util.inspect(body));
+//			console.log('body is: ' + util.inspect(body));
 			var ret;
 			if('ret' in options){
 				var data = JSON.parse(body);
@@ -395,7 +417,7 @@ function performRequest(api,path,verb,options,callback){
 function loadDatabaseFromCache(){
 	var cache = {};
 	try{
-		console.log('reading cache from: ' + Path.join(os.tmpdir(),'commandcar-cache.json'));
+//		console.log('reading cache from: ' + Path.join(os.tmpdir(),'commandcar-cache.json'));
 		cache = fs.readFileSync(Path.join(os.tmpdir(),'commandcar-cache.json'), 'utf-8');
 		cache = jsonic(cache);
 	}catch(e){
