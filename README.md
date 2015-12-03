@@ -51,7 +51,7 @@ You can browse through the available APIs [here](https://github.com/APIs-guru/ap
 
 # Loads are not persistent
 
-To avoid permission issues, commandcar caches the loads you make in a temporary storage. This doesn't need to affect you dramatically, however if you're running commandcar commands within other bash scripts it may be a good idea to include any `load` commands in the script before actually invoking the API commands. 
+To avoid permission issues, commandcar caches the loads you make in a temporary storage. This doesn't need to affect you dramatically as the cache will not purge during CLI sessions, however if you're running commandcar within other bash scripts it may be a good idea to include any `load` commands in the script before actually invoking the API commands just to be on safe side. 
 
 # Invoking APIs using commandcar
 
@@ -149,3 +149,7 @@ Now let's assume that the API response is:
 ```
 
 Then the output would be simply `John` instead of the entire json.
+
+# Gitter
+
+We're on [gitter](https://gitter.im/tikalk/commandcar) if you want to talk with us.
