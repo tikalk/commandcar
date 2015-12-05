@@ -81,17 +81,22 @@ _.each(database,function(apiContent,api){
 			
 			// always start with the api key in order to keep its short name persistent over all the api methods
 			if('security' in verbContent){
-				var securityParameterName;
+				var securityParameterNames = [];
 				var securityDefinition = _.keys(verbContent.security[0])[0];
 				if(apiContent.securityDefinitions[securityDefinition].type == 'apiKey'){
-					securityParameterName = apiContent.securityDefinitions[securityDefinition].name;
+					securityParameterNames.push(apiContent.securityDefinitions[securityDefinition].name);
 				}else if(apiContent.securityDefinitions[securityDefinition].type == 'oauth2'){
-					securityParameterName = 'access_token';
+					securityParameterNames.push('access_token');
+				}else if(apiContent.securityDefinitions[securityDefinition].type == 'basic'){
+					securityParameterNames.push('username');
+					securityParameterNames.push('password');
 				}
-				if(securityParameterName){
-					var short = getShort(securityParameterName,shorts);
-					shorts.push(short);
-					theCommand.option('-' + short + ', --' + securityParameterName + ' <' + securityParameterName + '>',securityParameterName);
+				if(securityParameterNames.length > 0){
+					_.each(securityParameterNames,function(securityParameterName){
+						var short = getShort(securityParameterName,shorts);
+						shorts.push(short);
+						theCommand.option('-' + short + ', --' + securityParameterName + ' <' + securityParameterName + '>',securityParameterName);
+					});
 				}
 				
 //				var apiKey = _.find(verbContent.security,function(item){
@@ -137,17 +142,22 @@ _.each(database,function(apiContent,api){
 	
 	// add use and unuse commands if applicable
 	if('securityDefinitions' in apiContent){
-		var securityParameterName;
+		var securityParameterNames = [];
 		var securityDefinition = _.keys(apiContent.securityDefinitions)[0];
 		if(apiContent.securityDefinitions[securityDefinition].type == 'apiKey'){
-			securityParameterName = apiContent.securityDefinitions[securityDefinition].name;
+			securityParameterNames.push(apiContent.securityDefinitions[securityDefinition].name);
 		}else if(apiContent.securityDefinitions[securityDefinition].type == 'oauth2'){
-			securityParameterName = 'access_token';
+			securityParameterNames.push('access_token');
+		}else if(apiContent.securityDefinitions[securityDefinition].type == 'basic'){
+			securityParameterNames.push('username');
+			securityParameterNames.push('password');
 		}
-		if(securityParameterName){
+		if(securityParameterNames.length > 0){
 			var useCommand = program.command(api + '.use');
-			var short = getShort(securityParameterName,[]);
-			useCommand.option('-' + short + ', --' + securityParameterName + ' <' + securityParameterName + '>',securityParameterName);
+			_.each(securityParameterNames,function(securityParameterName){
+				var short = getShort(securityParameterName,[]);
+				useCommand.option('-' + short + ', --' + securityParameterName + ' <' + securityParameterName + '>',securityParameterName);
+			});
 			useCommand.action(function(options){
 				use(api,options);
 			})
@@ -249,15 +259,20 @@ function use(api,options){
 		var useOptions = {};
 		
 		if('securityDefinitions' in database[api]){
-			var securityParameterName;
+			var securityParameterNames = [];
 			var securityDefinition = _.keys(database[api].securityDefinitions)[0];
 			if(database[api].securityDefinitions[securityDefinition].type == 'apiKey'){
-				securityParameterName = database[api].securityDefinitions[securityDefinition].name;
+				securityParameterNames.push(database[api].securityDefinitions[securityDefinition].name);
 			}else if(database[api].securityDefinitions[securityDefinition].type == 'oauth2'){
-				securityParameterName = 'access_token';
+				securityParameterNames.push('access_token');
+			}else if(database[api].securityDefinitions[securityDefinition].type == 'basic'){
+				securityParameterNames.push('username');
+				securityParameterNames.push('password');
 			}
-			if(securityParameterName){
-				useOptions[securityParameterName] = options[normalizeParameterName(securityParameterName)];
+			if(securityParameterNames.length > 0){
+				_.each(securityParameterNames,function(securityParameterName){
+					useOptions[securityParameterName] = options[normalizeParameterName(securityParameterName)];
+				});
 				fs.writeFileSync(Path.join(USE_DIR,api + '.json'),JSON.stringify(useOptions));
 				console.log('Use successful. any call on %s will now include --%s %s',api,securityParameterName,options[normalizeParameterName(securityParameterName)]);
 			}
@@ -301,6 +316,7 @@ function performRequest(api,path,verb,options,callback){
 	var headers = {};
 	var form = {};
 	var body;
+	var basicAuth;
 	
 	// load use options
 	try{
@@ -310,7 +326,7 @@ function performRequest(api,path,verb,options,callback){
 //			console.log('loaded ' + options[key] + ' from cache: ' + value);
 		})
 	}catch(e){
-		console.log('error loading use options: %s',e);
+		//console.log('error loading use options: %s',e);
 	}
 	
 	var protocol = database[api].schemes[0];
@@ -367,6 +383,8 @@ function performRequest(api,path,verb,options,callback){
 			}
 		}else if(database[api].securityDefinitions[securityDefinition].type == 'oauth2'){
 			headers['Authorization'] = 'Bearer ' + options['access_token'];
+		}else if(database[api].securityDefinitions[securityDefinition].type == 'basic'){
+			basicAuth = options['username'] + ':' + options['password'];
 		}
 		
 //		var apiKey = _.find(database[api].paths[path][verb].security,function(item){
@@ -384,7 +402,9 @@ function performRequest(api,path,verb,options,callback){
 		pathname: pathStr,
 		query: query
 	}
-	// TBD: dont forget basic auth!
+	if(basicAuth){
+		urlObj['auth'] = basicAuth;
+	}
 	
 	theUrl = url.format(urlObj);
 //	console.log('url: ' + theUrl);
