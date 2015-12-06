@@ -157,6 +157,12 @@ Now let's assume that the API response is:
 
 Then the output would be simply `John` instead of the entire json.
 
+# Known issues
+
+* --ret can only work on json responses
+* command line functionality itself, i.e. required arguments are not enforced etc.
+* program can be heavy with lots of APIs installed. Needs to imporve caching for consecutive invokations
+
 # Gitter
 
 We're on [gitter](https://gitter.im/tikalk/commandcar) if you want to talk with us.
