@@ -82,17 +82,22 @@ _.each(database,function(apiContent,api){
 			// always start with the api key in order to keep its short name persistent over all the api methods
 			if('security' in verbContent){
 				var securityParameterNames = [];
-				var securityDefinition = _.keys(verbContent.security[0])[0];
-				if(apiContent.securityDefinitions[securityDefinition].type == 'apiKey'){
-					securityParameterNames.push(apiContent.securityDefinitions[securityDefinition].name);
-				}else if(apiContent.securityDefinitions[securityDefinition].type == 'oauth2'){
-					securityParameterNames.push('access_token');
-				}else if(apiContent.securityDefinitions[securityDefinition].type == 'basic'){
-					securityParameterNames.push('username');
-					securityParameterNames.push('password');
-				}
+//				var securityDefinition = _.keys(verbContent.security[0])[0];
+//				console.log('sec def: ' + securityDefinition);
+				_.each(verbContent.security,function(securityDefinitionContent){
+					_.each(_.keys(securityDefinitionContent),function(securityDefinition){
+						if(apiContent.securityDefinitions[securityDefinition].type == 'apiKey'){
+							securityParameterNames.push(apiContent.securityDefinitions[securityDefinition].name);
+						}else if(apiContent.securityDefinitions[securityDefinition].type == 'oauth2'){
+							securityParameterNames.push('access_token');
+						}else if(apiContent.securityDefinitions[securityDefinition].type == 'basic'){
+							securityParameterNames.push('username');
+							securityParameterNames.push('password');
+						}	
+					});
+				})
 				if(securityParameterNames.length > 0){
-					_.each(securityParameterNames,function(securityParameterName){
+					_.each(_.uniq(securityParameterNames),function(securityParameterName){
 						var short = getShort(securityParameterName,shorts);
 						shorts.push(short);
 						theCommand.option('-' + short + ', --' + securityParameterName + ' <' + securityParameterName + '>',securityParameterName);
@@ -143,18 +148,20 @@ _.each(database,function(apiContent,api){
 	// add use and unuse commands if applicable
 	if('securityDefinitions' in apiContent){
 		var securityParameterNames = [];
-		var securityDefinition = _.keys(apiContent.securityDefinitions)[0];
-		if(apiContent.securityDefinitions[securityDefinition].type == 'apiKey'){
-			securityParameterNames.push(apiContent.securityDefinitions[securityDefinition].name);
-		}else if(apiContent.securityDefinitions[securityDefinition].type == 'oauth2'){
-			securityParameterNames.push('access_token');
-		}else if(apiContent.securityDefinitions[securityDefinition].type == 'basic'){
-			securityParameterNames.push('username');
-			securityParameterNames.push('password');
-		}
+//		var securityDefinition = _.keys(apiContent.securityDefinitions)[0];
+		_.each(apiContent.securityDefinitions,function(securityDefinitionContent,securityDefinition){
+			if(apiContent.securityDefinitions[securityDefinition].type == 'apiKey'){
+				securityParameterNames.push(apiContent.securityDefinitions[securityDefinition].name);
+			}else if(apiContent.securityDefinitions[securityDefinition].type == 'oauth2'){
+				securityParameterNames.push('access_token');
+			}else if(apiContent.securityDefinitions[securityDefinition].type == 'basic'){
+				securityParameterNames.push('username');
+				securityParameterNames.push('password');
+			}
+		});
 		if(securityParameterNames.length > 0){
 			var useCommand = program.command(api + '.use');
-			_.each(securityParameterNames,function(securityParameterName){
+			_.each(_.uniq(securityParameterNames),function(securityParameterName){
 				var short = getShort(securityParameterName,[]);
 				useCommand.option('-' + short + ', --' + securityParameterName + ' <' + securityParameterName + '>',securityParameterName);
 			});
@@ -260,21 +267,23 @@ function use(api,options){
 		
 		if('securityDefinitions' in database[api]){
 			var securityParameterNames = [];
-			var securityDefinition = _.keys(database[api].securityDefinitions)[0];
-			if(database[api].securityDefinitions[securityDefinition].type == 'apiKey'){
-				securityParameterNames.push(database[api].securityDefinitions[securityDefinition].name);
-			}else if(database[api].securityDefinitions[securityDefinition].type == 'oauth2'){
-				securityParameterNames.push('access_token');
-			}else if(database[api].securityDefinitions[securityDefinition].type == 'basic'){
-				securityParameterNames.push('username');
-				securityParameterNames.push('password');
-			}
+//			var securityDefinition = _.keys(database[api].securityDefinitions)[0];
+			_.each(database[api].securityDefinitions,function(securityDefinitionContent,securityDefinition){
+				if(database[api].securityDefinitions[securityDefinition].type == 'apiKey'){
+					securityParameterNames.push(database[api].securityDefinitions[securityDefinition].name);
+				}else if(database[api].securityDefinitions[securityDefinition].type == 'oauth2'){
+					securityParameterNames.push('access_token');
+				}else if(database[api].securityDefinitions[securityDefinition].type == 'basic'){
+					securityParameterNames.push('username');
+					securityParameterNames.push('password');
+				}
+			})
 			if(securityParameterNames.length > 0){
-				_.each(securityParameterNames,function(securityParameterName){
+				_.each(_.uniq(securityParameterNames),function(securityParameterName){
 					useOptions[securityParameterName] = options[normalizeParameterName(securityParameterName)];
 				});
 				fs.writeFileSync(Path.join(USE_DIR,api + '.json'),JSON.stringify(useOptions));
-				console.log('Use successful. any call on %s will now include --%s %s',api,securityParameterName,options[normalizeParameterName(securityParameterName)]);
+				console.log('Use successful');
 			}
 			
 		}
@@ -302,8 +311,7 @@ function unuse(api){
 }
 
 function performRequest(api,path,verb,options,callback){
-	
-	
+
 	// is the host known? or is passed as -h --host?
 	// facebook host is known: graph.facebook.com
 	// gradle host is always param: 192.8.9.10
@@ -374,18 +382,43 @@ function performRequest(api,path,verb,options,callback){
 		
 		
 		var securityParameterName;
-		var securityDefinition = _.keys(database[api].paths[path][verb].security[0])[0];
-		if(database[api].securityDefinitions[securityDefinition].type == 'apiKey'){
-			if(database[api].securityDefinitions[securityDefinition]['in'] == 'query'){
-				query[database[api].securityDefinitions[securityDefinition].name] = options[normalizeParameterName(database[api].securityDefinitions[securityDefinition].name)]
-			}else if(database[api].securityDefinitions[securityDefinition]['in'] == 'header'){
-				headers[database[api].securityDefinitions[securityDefinition].name] = options[normalizeParameterName(database[api].securityDefinitions[securityDefinition].name)]
-			}
-		}else if(database[api].securityDefinitions[securityDefinition].type == 'oauth2'){
-			headers['Authorization'] = 'Bearer ' + options['access_token'];
-		}else if(database[api].securityDefinitions[securityDefinition].type == 'basic'){
-			basicAuth = options['username'] + ':' + options['password'];
-		}
+//		var securityDefinition = _.keys(database[api].paths[path][verb].security[0])[0];
+		// using find because we need only the 1st matched security definition parameters
+		_.find(database[api].paths[path][verb].security,function(securityDefinitonContent){
+			var found = _.find(_.keys(securityDefinitonContent),function(securityDefinition){
+				if(database[api].securityDefinitions[securityDefinition].type == 'apiKey'){
+					if(options[normalizeParameterName(database[api].securityDefinitions[securityDefinition].name)]){
+						if(database[api].securityDefinitions[securityDefinition]['in'] == 'query'){
+							query[database[api].securityDefinitions[securityDefinition].name] = options[normalizeParameterName(database[api].securityDefinitions[securityDefinition].name)]
+						}else if(database[api].securityDefinitions[securityDefinition]['in'] == 'header'){
+							headers[database[api].securityDefinitions[securityDefinition].name] = options[normalizeParameterName(database[api].securityDefinitions[securityDefinition].name)]
+						}
+						return true;
+					}else{
+						return false;
+					}
+				}else if(database[api].securityDefinitions[securityDefinition].type == 'oauth2'){
+					if(options['access_token']){
+						headers['Authorization'] = 'Bearer ' + options['access_token'];
+						return true;
+					}else{
+						return false;
+					}
+				}else if(database[api].securityDefinitions[securityDefinition].type == 'basic'){
+					if(options['username'] && options['password']){
+						basicAuth = options['username'] + ':' + options['password'];
+						return true;
+					}else{
+						return false;
+					}
+				}
+				
+			});
+			
+			return (found !== 'undefined');
+
+		});
+		
 		
 //		var apiKey = _.find(database[api].paths[path][verb].security,function(item){
 //			return 'api_key' in item;
