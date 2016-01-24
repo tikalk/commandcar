@@ -145,7 +145,7 @@ This is an option that is attached automatically to any command and enables you 
 So for example let's assume you make this call:
 
 ```
-commandcar facebook.get_user --accees_token 123456 --ret first_name
+commandcar facebook.get_user --access_token 123456 --ret first_name
 ```
 
 Now let's assume that the API response is:
