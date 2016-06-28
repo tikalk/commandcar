@@ -228,7 +228,7 @@ program
 		}else{
 			var url;
 			if(options.api_model){
-				url = 'https://apis-guru.github.io/api-models/' + options.api_model + '/swagger.yaml';
+				url = 'https://api.apis.guru/v2/specs/' + options.api_model + '/swagger.yaml';
 			}else{
 				url = options.url;
 			}
