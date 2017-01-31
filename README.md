@@ -1,3 +1,4 @@
+[![Vizsla](https://s3.amazonaws.com/svg.vizsla.io/5.svg)](http://vizsla.io/subscribe/tikalk/commandcar)
 # commandcar - curl on steroids
 
 [![Join the chat at https://gitter.im/tikalk/commandcar](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tikalk/commandcar?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
