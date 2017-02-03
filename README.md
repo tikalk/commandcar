@@ -20,7 +20,7 @@ sudo npm install commandcar -g
 
 # Using commandcar
 
-A fresh commandcar install is a powerful yet empty skeleton. In order to make commandcar usable you need to `install` API definitions, and that's how you extend its power.
+A fresh commandcar install is a powerful yet empty skeleton. In order to make commandcar usable, you need to `install` API definitions, and that's how you extend its power.
 
 API Definitions are [swagger2.0](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md) files. You can create them yourself -- for example if you're developing an API and want to use commandcar to run automated tests against it -- or you can use existing public files. commandcar accepts either `json` or `yaml` swagger files.  
 
@@ -50,7 +50,7 @@ commandcar install --name my_api --url http://some.domain.com/my/api/swagger.yam
 commandcar install --name instagram --api_model instagram.com/1.0.0
 ```
 
-You can browse through the available APIs [here](https://github.com/APIs-guru/api-models/tree/master/APIs) and use the relative path to the directory containing the swagger file from this path onward. For example, the instagram API v1 resides here: https://github.com/APIs-guru/api-models/tree/master/APIs/instagram.com/1.0.0. Use "instagram.com/1.0.0" as the value for the --api_model argument. No trailing slashes please.
+You can browse through the available APIs [here](https://github.com/APIs-guru/api-models/tree/master/APIs) and use the relative path to the directory containing the swagger file from this path onward. For example, the instagram API v1 resides here: https://github.com/APIs-guru/api-models/tree/master/APIs/instagram.com/1.0.0. Use "instagram.com/1.0.0" as the value for the --api_model argument. No trailing slashes, please.
 
 ## Upgrading/modifying an installed API
 
@@ -143,7 +143,7 @@ Note: Facebook is used as an example API throughout this doc, though we didn't p
 
 This is an option that is attached automatically to any command and enables you to specify exactly what you wish to receive as output. 
 
-So for example let's assume you make this call:
+So, for example, let's assume you make this call:
 
 ```
 commandcar facebook.get_user --accees_token 123456 --ret first_name
@@ -164,7 +164,7 @@ Then the output would be simply `John` instead of the entire json.
 
 * --ret can only work on json responses
 * command line functionality itself, i.e. required arguments are not enforced etc.
-* program can be heavy with lots of APIs installed. Needs to imporve caching for consecutive invokations
+* program can be heavy with lots of APIs installed. Needs to improve caching for consecutive invocations
 
 # Gitter
 
